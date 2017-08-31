@@ -1,16 +1,16 @@
-## Creating a custom op (the "lemma" pattern) {#sec:ops:penultimate}
+## Faire son propre op (le patterne "lemma") {#sec:ops:penultimate}
 
-If we find a particular sequence of ops useful,
-we can package them up and re-provide them as another ops type class.
-This is an example of the "lemma" pattern,
-a term we introduced in Section [@sec:type-level-programming:summary].
+Si l'on trouve un ensemble d'ops utile, on peut les
+regrouper sous la forme d'une autre type classe ops.
+C'est un exemple du pattern « lemma », un terme que nous avions
+introduit dans la Section [@sec:type-level-programming:summary].
 
-Let's work through the creation of our own op as an exercise.
-We'll combine the power of `Last` and `Init`
-to create a `Penultimate` type class
-that retrieves the second-to-last element in an `HList`.
-Here's the type class definition,
-complete with `Aux` type alias and `apply` method:
+Prenons comme exercise la création de notre propre op.
+Nous allons combiner la puissance de `Last` et de `Init` pour créer
+la type class `Penultimate` qui retrouve l'avant-dernier élément d'une `HList`.
+Voici la définition de la type classe,
+complétée par son type alias `Aux` et sa méthode `apply`:
+
 
 ```tut:book:silent
 import shapeless._
@@ -27,15 +27,15 @@ object Penultimate {
 }
 ```
 
-Again, notice that the `apply` method
-has a return type of `Aux[L, O]` instead of `Penultimate[L]`.
-This ensures type members are visible on summoned instances
-as discussed in the callout
-in Section [@sec:type-level-programming:depfun].
+Notez encore une fois que la méthode `apply` 
+a comme type de retour `Aux[L, O]` au lieu de `Penultimate[L]`.
+Ce qui garanti que le membre de type est visible dans les instances invoquées, 
+comme souligné dans la Section [@sec:type-level-programming:depfun].
 
-We only need to define one instance of `Penultimate`,
-combining `Init` and `Last` using the techniques
-covered in Section [@sec:type-level-programming:chaining]:
+Nous n'avons besoin que de définir une seule instance de `Penultimate`,
+qui combine `Init` et `Last` de la même façon
+que dans la Section [@sec:type-level-programming:chaining]:
+
 
 ```tut:book:silent
 import shapeless.ops.hlist
@@ -52,7 +52,7 @@ implicit def hlistPenultimate[L <: HList, M <: HList, O](
   }
 ```
 
-We can use `Penultimate` as follows:
+Nous pouvons utiliser `Penultimate` de la façon suivante :
 
 ```tut:book:silent
 type BigList = String :: Int :: Boolean :: Double :: HNil
@@ -64,9 +64,9 @@ val bigList: BigList = "foo" :: 123 :: true :: 456.0 :: HNil
 Penultimate[BigList].apply(bigList)
 ```
 
-Summoning an instance of `Penultimate`
-requires the compiler to summon instances for `Last` and `Init`,
-so we inherit the same level of type checking on short `HLists`:
+
+Invoquer une instance de `Penultimate` oblige le compilateur à invoquer des instances pour `Last` et `Init`,
+nous bénéficions donc du même niveau de vérification des types sur les `HLists` courtes :
 
 ```tut:book:silent
 type TinyList = String :: HNil
@@ -78,8 +78,8 @@ val tinyList = "bar" :: HNil
 Penultimate[TinyList].apply(tinyList)
 ```
 
-We can make things more convenient for end users
-by defining an extension method on `HList`:
+Nous pouvons rendre les chose plus simples pour les utilisateurs finaux si nous définissons 
+une méthode d'extension sur `HList`:
 
 ```tut:book:silent
 implicit class PenultimateOps[A](a: A) {
@@ -92,8 +92,8 @@ implicit class PenultimateOps[A](a: A) {
 bigList.penultimate
 ```
 
-We can also provide `Penultimate` for all product types
-by providing an instance based on `Generic`:
+Nous pouvons aussi fournir `Penultimate` pour tous les types produit
+en fournissant une instance basée sur `Generic` :
 
 ```tut:book:silent
 implicit def genericPenultimate[A, R, O](
@@ -114,8 +114,8 @@ case class IceCream(name: String, numCherries: Int, inCone: Boolean)
 IceCream("Sundae", 1, false).penultimate
 ```
 
-The important point here is that,
-by defining `Penultimate` as another type class,
-we have created a reusable tool that we can apply elsewhere.
-Shapeless provides many ops for many purposes,
-but it's easy to add our own to the toolbox.
+Voici le point important à retenir :
+en définissant `Penultimate` comme une autre type class,
+nous avons créé un outil réutilisable que nous pouvons utiliser ailleurs.
+Shapeless fournit de nombreux outils pour de nombreux usages,
+mais il est simple d'ajouter le nôtre à la boîte à outils.

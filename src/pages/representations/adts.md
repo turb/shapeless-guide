@@ -1,24 +1,25 @@
-## Recap: algebraic data types
+## Rappel: types de données algébriques
 
 *Algebraic data types (ADTs)*[^adts]
-are a functional programming concept
-with a fancy name but a very simple meaning.
-They are an idiomatic way of representing data
-using "ands" and "ors". For example:
+est un nom raffiné qui cache un concept très simple.
+C'est un moyen idiomatique de représenter une donnée
+en utilisant les « et » et « ou » logiques. Par exemple :
 
- - a shape is a rectangle **or** a circle
- - a rectangle has a width **and** a height
- - a circle has a radius
 
-[^adts]: Not to be confused with "abstract data types",
-which are a different tool from computer science
-that has little bearing on the discussion here.
+ - une forme est un rectangle **ou** un cercle
+ - un rectangle a une largeur **et** une hauteur
+ - un cercle a un rayon
 
-In ADT terminology,
-"and" types such as rectangle and circle are called *products*
-and "or" types such as shape are called *coproducts*.
-In Scala we typically represent products using
-case classes and coproducts using sealed traits:
+[^adts]: Ne doivent pas être confondus avec les « abstract data types »,
+qui sont un outil différent en informatique et qui ont
+peu d'influence sur notre sujet.
+
+Dans la terminologie des ADTs, 
+les types « et » comme le rectangle et le cercle sont appelés *products (produits)*,
+les types « ou » comme le type forme sont appelés *coproducts (coproduits)*.
+En Scala, nous représentons typiquement les produits par des case class 
+et les coproduits par des traits scellés :
+
 
 ```tut:book:silent
 sealed trait Shape
@@ -29,12 +30,12 @@ val rect: Shape = Rectangle(3.0, 4.0)
 val circ: Shape = Circle(1.0)
 ```
 
-The beauty of ADTs is that they are completely type safe.
-The compiler has complete knowledge of the algebras[^algebra] we define,
-so it can help us write complete,
-correctly typed methods involving our types:
+Ce qui est beau avec les ADTs, c'est qu'ils sont complètement type safe.
+Le compilateur a une connaisence complète de l'agèbre[^algebra] 
+que nous définissons, il peut donc nous aider à écrire des méthodes
+correctement typées avec nos types.
 
-[^algebra]: The word "algebra" meaning: the symbols we define, such as rectangle and circle; and the rules for manipulating those symbols, encoded as methods.
+[^algebra]: Définition du mot « algèbre » : les symboles que nous définissions, comme les rectangles et les cercles ainsi que les règles de manipulation de ces symboles, celles-ci formulées sous forme de méthodes.
 
 ```tut:book:silent
 def area(shape: Shape): Double =
@@ -49,15 +50,15 @@ area(rect)
 area(circ)
 ```
 
-### Alternative encodings
+### Les écritures alernatives
 
-Sealed traits and case classes are undoubtedly
-the most convenient encoding of ADTs in Scala.
-However, they aren't the *only* encoding.
-For example, the Scala standard library provides
-generic products in the form of `Tuples`
-and a generic coproduct in the form of `Either`.
-We could have chosen these to encode our `Shape`:
+Les traits scellés et les case classes sont sans aucun doute
+les encodages les plus pratique des ADTs en Scala.
+Mais ce ne sont pas les *seules* possibilités d'encodage.
+Par exemple, la bibliotèque standard de scala fournit
+des produits génériques appelés `Tuples`
+ainsi qu'un coproduit générique : `Either`.
+Nous aurions pu choisir d'écrire notre `Shape` comme suit :
 
 ```tut:book:silent
 type Rectangle2 = (Double, Double)
@@ -67,10 +68,9 @@ type Shape2     = Either[Rectangle2, Circle2]
 val rect2: Shape2 = Left((3.0, 4.0))
 val circ2: Shape2 = Right(1.0)
 ```
-
-While this encoding is less readable than the case class encoding above,
-it does have some of the same desirable properties.
-We can still write completely type safe operations involving `Shape2`:
+Bien que cette écriture soit moins lisible que la précédente avec des case class, 
+elle dispose de certaines des propriétés requises.
+Nous pouvons toujours écrire du code type safe avec `Shape2` :
 
 ```tut:book:silent
 def area2(shape: Shape2): Double =
@@ -85,28 +85,27 @@ area2(rect2)
 area2(circ2)
 ```
 
-Importantly, `Shape2` is a more *generic* encoding than `Shape`[^generic].
-Any code that operates on a pair of `Doubles`
-will be able to operate on a `Rectangle2` and vice versa.
-As Scala developers we tend to prefer
-semantic types like `Rectangle` and `Circle`
-to generic ones like `Rectangle2` and `Circle2`
-precisely because of their specialised nature.
-However, in some cases generality is desirable.
-For example, if we're serializing data to disk,
-we don't care about the difference
-between a pair of `Doubles` and a `Rectangle2`.
-We just write two numbers and we're done.
+Il est important de noter que `Shape2` est une écriture plus *générique* que `Shape`[^generic].
+Tout code qui fonctionne avec une paire de `Doubles` 
+fonctionnera avec `Rectangle2` et vice versa.
+En tant que développeur scala nous avons tendance à préférer
+les types sémantiques comme `Rectangle` et `Circle`
+aux types génériques tels que `Rectangle2` et `Circle2`,
+précisément à cause de leur nature spécialisée.
+Toutefois, dans certain cas, la généralité est préférable.
+Par exemple, si l'on sérialise des données sur un disque,
+nous ne nous soucions pas des différences entre une paire de `Doubles`
+et un `Rectangle2`. On écrit seulement les nombres et rien d'autre.
 
-Shapeless gives us the best of both worlds:
-we can use friendly semantic types by default
-and switch to generic representations
-when we want interoperability (more on this later).
-However, instead of using `Tuples` and `Either`,
-shapeless uses its own data types to represent
-generic products and coproducts.
-We'll introduce these types in the next sections.
+Shapeless nous donne le meilleur des deux mondes ;
+nous pouvons utiliser les types sémantiques par défaut 
+et passer aux représentations génériques lorsque le besoin
+d'interopérabilité se fait sentir (nous y reviendrons).
 
-[^generic]: We're using "generic" in an informal way here,
-rather than the conventional meaning of
-"a type with a type parameter".
+En revanche, au lieu d'utiliser `Tuples` et `Either`,
+shapeless utilise son propre type de données pour 
+représenter les produits et coproduits génériques.
+Nous présenterons ces types dans la section suivante.
+
+[^generic]: nous utilisons « générique » de façon informelle,
+au lieu du sens conventionnel : « un type paramétré ».

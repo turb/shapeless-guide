@@ -1,26 +1,26 @@
-# Algebraic data types and generic representations {#sec:representations}
+# Type de données algébriques et représentation générique {#sec:representations}
 
-The main idea behind generic programming
-is to solve problems for a wide variety of types
-by writing a small amount of generic code.
-Shapeless provides two sets of tools to this end:
+La programmation générique a pour objectif principal
+de résoudre des problèmes pour une grande variété de types
+en utilisant un minimum de code générique.
+Shapeless fournit deux ensembles d'outils dans ce but :
 
- 1. a set of generic data types
-    that can be inspected, traversed, and manipulated
-    at the type level;
+ 1. Un ensemble de types de donnée générique
+    qui peuvent être inspectés, itérés et manipulés
+    au `type-level`
 
- 2. automatic mapping between *algebraic data types (ADTs)*
-    (encoded in Scala as case classes and sealed traits)
-    and these generic representations.
+ 2. Le mapping automatique entre *algebraic data types (ADTs)*
+    (encoder en Scala par les case classes et les traits scellés)
+    et leurs représentations génériques.
 
-In this chapter we will start with
-a recap of the theory of algebraic data types
-and why they might be familiar to Scala developers.
-Then we will look at
-generic representations used by shapeless
-and discuss how they map on to concrete ADTs.
-Finally, we will introduce a type class called `Generic`
-that provides automatic mapping
-back and forth between ADTs and generic representations.
-We will finish with some simple examples
-using `Generic` to convert values from one type to another.
+Dans ce chapitre, nous commençons par un
+récapitulatif sur la théorie des types alébriques
+et la raison pour laquelle ils peuvent être familiers pour le développeur scala.
+Puis, nous verrons les représentations génériques utilisées
+par shapeless et nous traiterons de la façon dont ils sont
+reliés aux ADTs concrets.
+Enfin, nous présenterons une type class appelée `Generic`
+qui fournit un mapping automatique bidirectionnel entre
+un ADT et sa représentation générique.
+Enfin, nous utiliserons `Generic` dans quelques exemples
+pour convertir des valeurs d'un type vers un autre.

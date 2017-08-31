@@ -1,21 +1,20 @@
-## Summary
+## Résumer
+Dans ce chapitre nous expliquons comment utiliser
+`Generic`, `HLists`, et `Coproducts`
+pour déduire automatiquement l'instance d'une type class.
+Nous couvrons aussi le type `Lazy`
+qui est un moyen de manipuler les types complexes/recursifs.
+Compte tenu de tout ceci,
+on peut écrire le squelette commun suivant
+qui permet de déduire des instances de type class.
 
-In this chapter we discussed how to use
-`Generic`, `HLists`, and `Coproducts`
-to automatically derive type class instances.
-We also covered the `Lazy` type
-as a means of handling complex/recursive types.
-Taking all of this into account,
-we can write a common skeleton
-for deriving type class instances as follows.
-
-First, define the type class:
+Premièrement, définissons la type class :
 
 ```tut:book:silent
 trait MyTC[A]
 ```
 
-Define primitive instances:
+Définissons les instances pour les types primitifs :
 
 ```tut:book:silent
 implicit def intInstance: MyTC[Int] = ???
@@ -23,7 +22,7 @@ implicit def stringInstance: MyTC[String] = ???
 implicit def booleanInstance: MyTC[Boolean] = ???
 ```
 
-Define instances for `HList`:
+Définissons les instances pour `HList`:
 
 ```tut:book:silent
 import shapeless._
@@ -36,8 +35,7 @@ implicit def hlistInstance[H, T <: HList](
   tInstance: MyTC[T]
 ): MyTC[H :: T] = ???
 ```
-
-If required, define instances for `Coproduct`:
+Si requis, définir les instances de `Coproduct`:
 
 ```tut:book:silent
 implicit def cnilInstance: MyTC[CNil] = ???
@@ -49,7 +47,7 @@ implicit def coproductInstance[H, T <: Coproduct](
 ): MyTC[H :+: T] = ???
 ```
 
-Finally, define an instance for `Generic`:
+Enfin, définissons les instances pour `Generic`:
 
 ```tut:book:silent
 implicit def genericInstance[A, R](
@@ -59,11 +57,11 @@ implicit def genericInstance[A, R](
 ): MyTC[A] = ???
 ```
 
-In the next chapter we'll cover some useful theory
-and programming patterns
-to help write code in this style.
-In Chapter [@sec:labelled-generic]
-we will revisit type class derivation
-using a variant of `Generic` that
-allows us to inspect field and type names
-in our ADTs.
+Dans le chapitre suivant nous allons voir quelques
+théories et patterns de programmation utiles
+qui permettent d'écrire ce genre de code.
+Dans le Chapitre [@sec:labelled-generic],
+on reviendra sur la déduction de type class
+en utilisant une variante de `Generic` qui
+permet d'inspecter les champs et les noms des types
+dans nos ADTs.

@@ -1,8 +1,8 @@
-## Deriving coproduct instances with *LabelledGeneric*
+## Déduire les instances de coproduits avec *LabelledGeneric*
 
 ```tut:book:invisible:reset
 // ----------------------------------------------
-// Forward definitions:
+// définitions précédentes:
 
 sealed trait JsonValue
 final case class JsonObject(fields: List[(String, JsonValue)]) extends JsonValue
@@ -91,11 +91,10 @@ final case class Circle(radius: Double) extends Shape
 // ----------------------------------------------
 ```
 
-Applying `LabelledGeneric` with `Coproducts`
-involves a mixture of the concepts we've covered already.
-Let's start by examining
-a `Coproduct` type derived by `LabelledGeneric`.
-We'll re-visit our `Shape` ADT from Chapter [@sec:generic]:
+Appliquer les `LabelledGeneric` aux `Coproducts` revient à
+mélanger des concepts que nous avons déja traités.
+Commençons par examiner un type `Coproduct` déduit par `LabelledGeneric`.
+Nous allons revisiter notre ADT `Shape` du Chapitre [@sec:generic]:
 
 ```tut:book:silent
 import shapeless.LabelledGeneric
@@ -109,7 +108,7 @@ final case class Circle(radius: Double) extends Shape
 LabelledGeneric[Shape].to(Circle(1.0))
 ```
 
-Here is that `Coproduct` type in a more readable format:
+Voici le type du `Coproduct` dans un format plus lisible :
 
 ```scala
 // Rectangle with KeyTag[Symbol with Tagged["Rectangle"], Rectangle] :+:
@@ -117,9 +116,9 @@ Here is that `Coproduct` type in a more readable format:
 // CNil
 ```
 
-As you can see, the result is a `Coproduct` of the subtypes of `Shape`,
-each tagged with the type name.
-We can use this information to write `JsonEncoders` for `:+:` and `CNil`:
+Comme vous pouvez le constater, le résultat est un `Coproduit` des sous-types de `Shape`,
+chacun taggé avec leur nom.
+Nous pouvons utiliser ces informations pour écrire un `JsonEncoders` pour `:+:` et `CNil`:
 
 ```tut:book:silent
 import shapeless.{Coproduct, :+:, CNil, Inl, Inr, Witness, Lazy}
@@ -145,16 +144,17 @@ implicit def coproductObjectEncoder[K <: Symbol, H, T <: Coproduct](
 }
 ```
 
-`coproductEncoder` follows the same pattern as `hlistEncoder`.
-We have three type parameters:
-`K` for the type name,
-`H` for the value at the head of the `HList`,
-and `T` for the value at the tail.
-We use `FieldType` and `:+:` in the result type
-to declare the relationships between the three,
-and we use a `Witness` to access the runtime value of the type name.
-The result is an object containing a single key/value pair,
-the key being the type name and the value the result:
+`coproductEncoder` suit les mêmes règles que `hlistEncoder`.
+On dispose de trois paramètres de types :
+`K` pour le nom du type,
+`H` pour la valeur de la tête de la `HList`
+et `T` pour la valeur de la queue.
+Nous utilisons `FieldType` et `:+:` dans le type résultant
+pour garder la relation entre les trois, et nous utilisons `Witness`
+pour accéder à la valeur du nom du type pendant l'exécution.
+Le résultat est un objet contenant une seule paire de clef/valeur,
+la clef étant le nom du type et la valeur le résultat :
+
 
 ```tut:book:silent
 val shape: Shape = Circle(1.0)
@@ -164,9 +164,7 @@ val shape: Shape = Circle(1.0)
 JsonEncoder[Shape].encode(shape)
 ```
 
-Other encodings are possible with a little more work.
-We can add a `"type"` field to the output, for example,
-or even allow the user to configure the format.
-Sam Halliday's [spray-json-shapeless][link-spray-json-shapeless]
-is an excellent example of a codebase
-that is approachable while providing a great deal of flexibility.
+D'autres encodages sont possibles avec un peu plus de travail.
+Par exemple, on peut ajouter un champ `"type"` dans la sortie,
+ou encore permetre à l'utilisateur de configurer le format.
+La code base de Sam Halliday sur [spray-json-shapeless][link-spray-json-shapeless] est un parfait exemple de code qui est accessible tout en offrant beaucoup de flexibilité.

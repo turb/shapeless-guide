@@ -1,15 +1,14 @@
-## Summary
+## Résumé
 
-In this chapter we discussed *polymorphic functions*
-whose return types vary based on the types of their parameters.
-We saw how shapeless' `Poly` type is defined,
-and how it is used to implement functional operations such as
-`map`, `flatMap`, `foldLeft`, and `foldRight`.
+Dans ce chapitre, nous avons traité des *fonctions polymorpgiques*
+dont le type de retour varie en fonction du type de paramètre.
+Nous avons vu comment le type `Poly` de shapeless est défini
+et comment implémenter des opérations fonctionnelles comme `map`, `flatMap`, `foldLeft` et `foldRight`.
 
-Each operation is implemented as an extension method on `HList`,
-based on a corresponding type class:
-`Mapper`, `FlatMapper`, `LeftFolder`, and so on.
-We can use these type classes, `Poly`,
-and the techniques from Section [@sec:type-level-programming:chaining]
-to create our own type classes involving
-sequences of sophisticated transformations.
+Chaque opération est implémentée comme une méthode d'extension sur `HList`,
+basée sur une des type classes correspondantes :
+`Mapper`, `FlatMapper`, `LeftFolder` et les autres.
+Nous pouvons utiliser ces type classes, `Poly` et les
+techniques de la Section [@sec:type-level-programming:chaining]
+pour créer nos propres type classes comportant un enchaînement de transformations sophistiquées.
+

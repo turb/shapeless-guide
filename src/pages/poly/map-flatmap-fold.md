@@ -1,10 +1,9 @@
-## Mapping and flatMapping using *Poly*
+## Mapping et flatMapping à l'aide de *Poly*
 
-Shapeless provides a suite of
-functional operations based on `Poly`,
-each implemented as an ops type class.
-Let's look at `map` and `flatMap` as examples.
-Here's `map`:
+Shapeless fournit un ensemble d'opérations fonctionnelles 
+basées sur `Poly`, chacune implémentée par un type classe ops.
+Jetons un œil à `map` et `flatMap` en guise d'exemple.
+voici `map` :
 
 ```tut:book:silent
 import shapeless._
@@ -25,20 +24,19 @@ object sizeOf extends Poly1 {
 (10 :: "hello" :: true :: HNil).map(sizeOf)
 ```
 
-Note that the elements in the resulting `HList`
-have types matching the `Cases` in `sizeOf`.
-We can use `map` with any `Poly` that
-provides `Cases` for every member of our starting `HList`.
-If the compiler can't find a `Case` for a particular member,
-we get a compile error:
+Notez que les éléments dans la `HList` résultante a des types qui correspondent 
+au `Case` dans `sizeOf`.
+Nous pouvons utiliser `map` avec nimporte quel `Poly` qui contient
+un `Case` pour chaque membre de notre `HList`.
+Si le compilateur ne peut pas trouver de `Case` pour un membre,
+nous obtenons une erreur de compilation :
 
 ```tut:book:fail
 (1.5 :: HNil).map(sizeOf)
 ```
 
-We can also `flatMap` over an `HList`,
-as long as every corresponding case in our `Poly`
-returns another `HList`:
+Nous pouvons aussi utiliser `flatMap` sur une `HList`,
+tant que tout les cas de notre `Poly` retournent une autre `HList` :
 
 ```tut:book:silent
 object valueAndSizeOf extends Poly1 {
@@ -57,24 +55,22 @@ object valueAndSizeOf extends Poly1 {
 (10 :: "hello" :: true :: HNil).flatMap(valueAndSizeOf)
 ```
 
-Again, we get a compilation error if there is a missing case
-or one of the cases doesn't return an `HList`:
+Encore une fois, nous obtenons une erreur de compilation s'il manque des `Cases`
+ou si un `Case` ne retourne pas de `HList` :
 
 ```tut:book:fail
 // Using the wrong Poly with flatMap:
 (10 :: "hello" :: true :: HNil).flatMap(sizeOf)
 ```
 
-`map` and `flatMap` are based on type classes
-called `Mapper` and `FlatMapper` respectively.
-We'll see an example that makes direct use of `Mapper`
-in Section [@sec:poly:product-mapper].
+`map` et `flatMap` sont basés sur les types classes 
+`Mapper` et `FlatMapper`. Nous en verrons un exemple 
+d'utilisation de `Mapper` dans la Section  [@sec:poly:product-mapper].
 
-## Folding using *Poly*
+## Utiliser Fold avec *Poly*
 
-In addition to `map` and `flatMap`,
-shapeless also provides
-`foldLeft` and `foldRight` operations based on `Poly2`:
+En plus de `map` et `flatMap`, shapeless fournit 
+`foldLeft` et `foldRight` qui sont basés sur `Poly2` :
 
 ```tut:book:silent
 import shapeless._
@@ -92,7 +88,6 @@ object sum extends Poly2 {
 (10 :: "hello" :: 100 :: HNil).foldLeft(0)(sum)
 ```
 
-We can also `reduceLeft`, `reduceRight`, `foldMap`, and so on.
-Each operation has its own associated type class.
-We'll leave it as an exercise to the reader
-to investigate the available operations.
+Nous pouvons aussi utiliser `reduceLeft`, `reduceRight`, `foldMap` et bien d'autres.
+Chaque opération est associée à une type classe.
+Nous vous laissons le soin d'examiner les autres opérations disponibles.

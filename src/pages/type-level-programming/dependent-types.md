@@ -1,13 +1,13 @@
-## Dependent types
+## Types dépendants
 
-Last chapter we spent a lot of time using `Generic`,
-the type class for mapping ADT types to generic representations.
-However, we haven't yet discussed an important bit of theory
-that underpins `Generic` and much of shapeless:
-*dependent types*.
+Dans le dernier chapitre, nous avons passé beaucoup de temps à utiliser `Generic`,
+la type classe qui sert à lier un type ADT à sa représentation générique.
+Pourtant, nous n'avons pas encore abordé la théorie sous-jacente à `Generic` et à tout shapeless :
+*les types dépendants*.
 
-To illustrate this, let's take a closer look at `Generic`.
-Here's a simplified version of the definition:
+
+Pour illustrer tout ca, intéressons-nous de plus près à `Generic`.
+Voici une version simplifié de sa définition :
 
 ```scala
 trait Generic[A] {
@@ -16,11 +16,10 @@ trait Generic[A] {
   def from(value: Repr): A
 }
 ```
-
-Instances of `Generic` reference two other types:
-a type parameter `A` and a type member `Repr`.
-Suppose we implement a method `getRepr` as follows.
-What type will we get back?
+Les instances de `Generic` font référence à deux autres types :
+un paramètre de type `A` et un membre de type `Repr`.
+Imaginons que l'on implémente une méthode `getRepr` de la façon suivante.
+Quel type allons-nous obtenir en retour ?
 
 ```tut:book:silent
 import shapeless.Generic
@@ -29,11 +28,10 @@ def getRepr[A](value: A)(implicit gen: Generic[A]) =
   gen.to(value)
 ```
 
-The answer is it depends on the instance we get for `gen`.
-In expanding the call to `getRepr`,
-the compiler will search for a `Generic[A]`
-and the result type will be whatever `Repr`
-is defined in that instance:
+La réponse est : tout dépend de l'instance de `gen` que nous avons.
+En développant l'appel de `getRepr`,
+le compilateur va chercher un `Generic[A]` 
+et le type sera le `Repr` défini dans l'instance :
 
 ```tut:book:silent
 case class Vec(x: Int, y: Int)
@@ -45,12 +43,11 @@ getRepr(Vec(1, 2))
 getRepr(Rect(Vec(0, 0), Vec(5, 5)))
 ```
 
-What we're seeing here is called *dependent typing*:
-the result type of `getRepr` depends on its value parameters
-via their type members.
-Suppose we had specified `Repr`
-as type parameter on `Generic`
-instead of a type member:
+Ce que nous voyons ici est appelé *typage dependent*: 
+le type du résultat de `getRepr` dépend de la valeur de son
+paramètre de type via son membre de type.
+Imaginons que nous avons spécifié `Repr` comme paramètre de type 
+de `Generic` à la place du membre de type: 
 
 ```tut:book:silent
 trait Generic2[A, Repr]
@@ -59,9 +56,7 @@ def getRepr2[A, R](value: A)(implicit generic: Generic2[A, R]): R =
   ???
 ```
 
-We would have had to pass the desired value of `Repr`
-to `getRepr` as a type parameter,
-effectively making `getRepr` useless.
-The intuitive take-away from this is
-that type parameters are useful as "inputs"
-and type members are useful as "outputs".
+Nous aurions dû passer la valeur désirée de `Repr` dans le paramètre de type de `getRepr`,
+ce qui finit par rendre `getRepr` inutile.
+On peut en déduire que les paramètres de type sont utiles en tant « qu'inputs »
+et les membre de type sont utiles en tant « qu'outputs. »

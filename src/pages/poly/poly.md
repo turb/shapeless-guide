@@ -1,23 +1,21 @@
-## Polymorphic functions
+## Fonctions polymorphique
 
-Shapeless provides a type called `Poly`
-for representing *polymorphic functions*,
-where the result type depends on the parameter types.
-Here is a simplified explanation of how it works.
-Note that the next section doesn't contain real shapeless code---we're
-eliding much of the flexibility and ease of use
-that comes with real shapeless `Polys`
-to create a simplified API for illustrative purposes.
+Shapeless fournit un type appelé `Poly`
+pour représenter les *fonctions polymorphiques*
+dont le type de retour dépend des paramètres de types.
+Voici une explication simplifiée de leur fonctionnement.
+Notez que la section suivante ne contient pas de vrai code shapeless,
+nous mettons de coté une partie de la flexibilité et des mécanismes qui servent à simplifier l'utilisation de la vraie bibliothèque de shapeless pour créer une version simplifiée dans le cadre de notre exemple.
 
-### How *Poly* works
+### Comment *Poly* fonctionne
 
-At its core, a `Poly` is an object with a generic `apply` method.
-In addition to its regular parameter of type `A`,
-`Poly` accepts an implicit parameter of type `Case[A]`:
+Au cœur de `Poly`, on trouve un objet avec une méthode `apply` générique.
+En plus de l'habituel paramètre de type `A`,
+`Poly` prend un paramètre implicite de type `Case[A]`:
 
 ```tut:book:silent
-// This is not real shapeless code.
-// It's just for demonstration.
+// Ceci n'est pas du code shapeless.
+// Ceci n'est qu'une démonstration.
 
 trait Case[P, A] {
   type Result
@@ -30,14 +28,14 @@ trait Poly {
 }
 ```
 
-When we define an actual `Poly`,
-we provide instances of `Case`
-for each parameter type we care about.
-These implement the actual function body:
+Lorsque qu'on définit un véritable `Poly`,
+on fournit une instance de `Case` pour
+chaque paramètre de type dont nous avons besoin.
+Ceci permet d'implémenter le vrai corps de la fonction :
 
 ```tut:book:silent
-// This is not real shapeless code.
-// It's just for demonstration.
+// Ceci n'est pas du code shapeless.
+// Ceci n'est qu'une démonstration.
 
 object myPoly extends Poly {
   implicit def intCase =
@@ -55,31 +53,30 @@ object myPoly extends Poly {
 
 ```
 
-When we call `myPoly.apply`,
-the compiler searches for the relevant implicit `Case`
-and inserts it as usual:
+Lorsqu'on appelle `myPoly.apply`,
+le compilateur recherche le `Case` implicite correspondant
+et l'intègre comme à l'accoutumée :
 
 ```tut:book
 myPoly.apply(123)
 ```
 
-There is some subtle scoping behaviour here
-that allows the compiler to locate instances of `Case`
-without any additional imports.
-`Case` has an extra type parameter `P`
-referencing the singleton type of the `Poly`.
-The implicit scope for `Case[P, A]` includes
-the companion objects for `Case`, `P`, and `A`.
-We've assigned `P` to be `myPoly.type`
-and the companion object for `myPoly.type` is `myPoly` itself.
-In other words, `Cases` defined in the body of the `Poly`
-are always in scope no matter where the call site is.
+Il y a ici quelques subltilités de scoping, qui permettent 
+au compilateur de trouver les instances de `Case` sans import supplémentaire.
+`Case` a un paramètre de type supplémentaire appelé `P`
+qui référence le type singleton de `Poly`.
+Le scope de `Case[P, A]` contient comme implicit une référence
+à l'objet compagnon de `Case`, `P` et de `A`.
+Nous avons assigné  `myPoly.type` à `P` et
+l'objet compagnon de  `myPoly.type` est `myPoly` lui-même.
+En d'autre termes, `Cases` qui est défini dans le corps de `Poly`
+est toujours accesible dans le scope quel que soit l'emplacement de l'appel.
 
-### *Poly* syntax
+### la syntaxe de *Poly*
 
-The code above isn't real shapeless code.
-Fortunately, shapeless makes `Polys` much simpler to define.
-Here's our `myPoly` function rewritten in proper syntax:
+Le code ci-dessus n'est pas le véritable code de shapeless.
+Heureusement, shapeless permet de définir les `Polys` de facon bien plus simple.
+Voici notre fonction `myPoly` réécrite avec la véritable syntaxe :
 
 ```tut:book:silent
 import shapeless._
@@ -93,37 +90,35 @@ object myPoly extends Poly1 {
 }
 ```
 
-There are a few key differences with our earlier toy syntax:
+Il y a quelques différences notables par rapport à notre syntaxe précédente :
 
- 1. We're extending a trait called `Poly1` instead of `Poly`.
-    Shapeless has a `Poly` type and a set of subtypes,
-    `Poly1` through `Poly22`, supporting different arities
-    of polymorphic function.
+ 1. Nous étendons le trait appelé `Poly1` au lieu de `Poly`.
+    Shapeless a un type `Poly` et un ensemble de sous-types,
+    `Poly1` a `Poly22`, qui supporte les différentes variétés de fonctions polymorphiques.
 
- 2. The `Case.Aux` types doesn't seem to reference
-    the singleton type of the `Poly`.
-    `Case.Aux` is actually a type alias
-    defined within the body of `Poly1`.
-    The singleton type is there---we just don't see it.
+ 2. Le type `Case.Aux` ne semble pas faire
+    référence au type singleton de `Poly`.
+    `Case.Aux` est en fait un alias de type défini dans le corp de `Poly1`.
+    Le type singleton est bien présent, il est simplement caché.
 
- 3. We're using a helper method, `at`, to define cases.
-    This acts as an instance constructor method
-    as discussed in Section [@sec:generic:idiomatic-style]),
-    which eliminates a lot of boilerplate.
+ 3. Nous utilisons la méthode helper `at` pour définir nos cas.
+    Elle agit à la façon d'une méthode constructrice d'instance,
+    comme traité dans la Section [@sec:generic:idiomatic-style]),
+    elle sert principalement à éliminér le boilerplate.
 
-Syntactic differences aside,
-the shapeless version of `myPoly` is functionally
-identical to our toy version.
-We can call it with an `Int` or `String` parameter
-and get back a result of the corresponding return type:
+Une fois les différences de syntaxe mises de côté,
+la version shapeless de `myPoly` a la même fonctionalité
+que notre version de démonstration.
+Nous pouvons l'appeler avec un paramètre de type `Int` ou `String` et 
+obtenir en retour le type correspondant :
 
 ```tut:book
 myPoly.apply(123)
 myPoly.apply("hello")
 ```
 
-Shapeless also supports `Polys` with more than one parameter.
-Here is a binary example:
+Shapeless supporte aussi les `Polys` avec plus d'un paramètre.
+En voici un exemple avec deux paramètres :
 
 ```tut:book:silent
 object multiply extends Poly2 {
@@ -140,12 +135,13 @@ multiply(3, 4)
 multiply(3, "4")
 ```
 
-Because `Cases` are just implicit values,
-we can define cases based on type classes
-and do all of the advanced implicit resolution
-covered in previous chapters.
-Here's a simple example that
-totals numbers in different contexts:
+Les `Cases` n'étant que des valeurs implicites,
+nous pouvons définir des cases basés sur des type classes
+et ainsi appliquer toutes les résolutions implicites sophistiquées que
+nous avions traitées dans le chapitre précédent. 
+
+Voici un exemple simple qui donne
+le total de nombre selon différents contextes :
 
 ```tut:book:silent
 import scala.math.Numeric
@@ -172,34 +168,31 @@ total(List(1L, 2L, 3L))
 ```
 
 <div class="callout callout-warning">
-*Idiosyncrasies of type inference*
+*Particularité de l'inférence de type*
 
-`Poly` pushes Scala's type inference out of its comfort zone.
-We can easily confuse the compiler by
-asking it to do too much inference at once.
-For example, the following code compiles ok:
+`Poly` amène l'inférence de type de scala en dehors de sa zone de confort.
+Nous pouvons facilement embrouiller le compilateur en lui demandant trop d'inférences de type d'un seul coup.
+Par exemple, le code suivant compile correctement :
 
 ```tut:book:silent
 val a = myPoly.apply(123)
 val b: Double = a
 ```
-
-However, combining the two lines causes a compilation error:
+Par contre, combiner les deux linges précédentes provoque une erreur :
 
 ```tut:book:fail
 val a: Double = myPoly.apply(123)
 ```
 
-If we add a type annotation, the code compiles again:
+Si on ajoute une annotation de type, le code compile à nouveau :
 
 ```tut:book
 val a: Double = myPoly.apply[Int](123)
 ```
 
-This behaviour is confusing and annoying.
-Unfortunately there are no concrete rules to follow to avoid problems.
-The only general guideline is to
-try not to over-constrain the compiler,
-solve one constraint at a time,
-and give it a hint when it gets stuck.
+Ce comportement est ennuyeux et peut porter à confusion.
+Malheureusement, il n'existe pas de règles précises pour éviter ces problèmes.
+La règle générale est d'essayer de ne pas trop contraindre le compilateur,
+de résoudre une seule contrainte à la fois et de lui donner
+un coup de pouce quand il se retrouve bloqué.
 </div>

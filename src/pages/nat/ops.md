@@ -1,8 +1,8 @@
-## Other operations involving *Nat*
+## Les autres opérations impliquant *Nat*
 
-Shapeless provides a suite of other operations based on `Nat`.
-The `apply` methods on `HList` and `Coproduct`
-can accept `Nats` as value or type parameters:
+Shapeless fournit tout un ensemble d'autres opérationss basées sur `Nat`.
+La méthode `apply` sur les `HList` ou les `Coproduct` peut accepter un `Nats`
+comme paramètre ou comme paramètre de type :
 
 ```tut:book:silent
 import shapeless._
@@ -15,14 +15,13 @@ hlist.apply[Nat._1]
 hlist.apply(Nat._3)
 ```
 
-There are also operations such as
-`take`, `drop`, `slice`, and `updatedAt`:
+Il y a aussi des opérations comme `take`, `drop`, `slice` et `updatedAt` :
 
 ```tut:book
 hlist.take(Nat._3).drop(Nat._1)
 hlist.updatedAt(Nat._1, "bar").updatedAt(Nat._2, "baz")
 ```
 
-These operations and their associated type classes
-are useful for manipulating
-individual elements within a product or coproduct.
+Ces opérations et leurs type classes associées
+sont utiles pour manipuler individuellement
+les éléments d'un produit ou d'un coproduit.

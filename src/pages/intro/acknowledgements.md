@@ -1,13 +1,13 @@
-## Acknowledgements
+## Remerciements
 
-Thanks to Miles Sabin, Richard Dallaway, Noel Welsh, Travis Brown,
-and our [fellow space-farers on Github][link-contributors]
-for their invaluable contributions to this guide.
+Merci à Miles Sabin, Richard Dallaway, Noel Welsh, Travis Brown,
+et nos [camarades de Github][link-contributors]
+pour leur contribution inestimable.
 
-Special thanks to Sam Halliday for this excellent workshop
+Un remerciement tout particulier à Sam Halliday pour sont excellent workshop.
 [Shapeless for Mortals][link-fommil-scalax-2015],
-which provided the initial inspiration and skeleton.
+qui nous a fourni l'inspiration initiale ainsi que la structure.
 
-Finally, thanks to Rob Norris and his fellow contributors
-for the awesome [Tut][link-tut],
-which keeps our examples compiling correctly.
+Enfin, merci à Rob Norris et à ses contributeurs
+pour le génial [Tut][link-tut],
+qui assure la compilation de nos exemples.

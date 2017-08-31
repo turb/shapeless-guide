@@ -1,6 +1,6 @@
-## Libraries
+## Bibliothèques
 
-### Select well-known libraries using shapeless
+### Une sélection de bibliothèques réputées qui utilisent shapeless
 
 *argonaut-shapeless*
 
@@ -338,9 +338,9 @@ Wrap and unwrap value classes.
  - shapeless.Generic
  - shapeless.Lazy
 
-### Transposed dependencies (what uses what)
+### Dépendances transposées (qui utilise quoi)
 
-Bits of shapeless and what uses them:
+Des morceaux de shapeless et avec quoi les utiliser :
 
  - shapeless.*->*                            -- scodec
  - shapeless.=:!=                            -- scodec

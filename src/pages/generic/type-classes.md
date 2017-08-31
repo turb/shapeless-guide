@@ -1,15 +1,15 @@
-## Recap: type classes {#sec:generic:type-classes}
+## Bref rappel : les type classes {#sec:generic:type-classes}
 
-Before we get into the depths of instance derivation,
-let's quickly recap on the important aspects of type classes.
+Avant d'entrer en détails dans la déduction d'instance,
+faisons un bref rappel des aspects importants des types classes.
 
-Type classes are a programming pattern borrowed from Haskell
-(the word "class" has nothing to do with
-classes in object oriented programming).
-We encode them in Scala using traits and implicits.
-A *type class* is a parameterised trait
-representing some sort of general functionality
-that we would like to apply to a wide range of types:
+Les type classes sont un pattern de programmation emprunté à Haskell
+(le mot « classe » n'a rien a voir avec les classes 
+de la programmation orientée object).
+Nous les écrivons en scala avec des traits et des implicites.
+Une *type class* est un trait paramétré représentant une 
+fonctionalité générale que l'on voudrait appliquer à une grande
+variété de types :
 
 ```tut:book:silent
 // Turn a value of type A into a row of cells in a CSV file:
@@ -17,13 +17,12 @@ trait CsvEncoder[A] {
   def encode(value: A): List[String]
 }
 ```
-
-We implement our type class with *instances*
-for each type we care about.
-If we want the instances to automatically be in scope
-we can place them in the type class' companion object.
-Otherwise we can place them in a separate library object
-for the user to import manually:
+On implémente notre type class avec une *instance*
+pour chaque type visé.
+Si nous voulons avoir l'instance dans le scope automatiquement,
+on peut les placer dans l'objet compagnon de la type class.
+Sinon, on peut les placer dans une objet séparé qui fera office de bibliothèque
+et que l'utilisateur pourra importer manuellement :
 
 ```tut:book:silent
 // Custom data type:
@@ -40,17 +39,15 @@ implicit val employeeEncoder: CsvEncoder[Employee] =
       )
   }
 ```
-
-We mark each instance with the keyword `implicit`,
-and define one or more entry point methods
-that accept an implicit parameter of the corresponding type:
+On marque chaque instance avec le mot clé `implicit`,
+et on définit une ou plusieurs méthodes qui acceptent le paramètre 
+implicite du type de notre type class, elles feront office de point d'entrée :
 
 ```tut:book:silent
 def writeCsv[A](values: List[A])(implicit enc: CsvEncoder[A]): String =
   values.map(value => enc.encode(value).mkString(",")).mkString("\n")
 ```
-
-We'll test `writeCsv` with some test data:
+Testons `writeCsv` avec quelques données de test :
 
 ```tut:book:silent
 val employees: List[Employee] = List(
@@ -59,18 +56,16 @@ val employees: List[Employee] = List(
   Employee("Milton", 3, false)
 )
 ```
+Quand on appelle `writeCsv`,
+le compilateur calcule la valeur du paramètre de type 
+et cherche un implicite de `CsvEncoder` du type correspondant :
 
-When we call `writeCsv`,
-the compiler calculates the value of the type parameter
-and searches for an implicit `CsvEncoder`
-of the corresponding type:
 
 ```tut:book
 writeCsv(employees)
 ```
-
-We can use `writeCsv` with any data type we like,
-provided we have a corresponding implicit `CsvEncoder` in scope:
+On peut utiliser `writeCsv` avec nimporte quel type de donnée,
+du moment que l'on a dans le scope l'implicite de `CsvEncoder` correspondant :
 
 ```tut:book:silent
 case class IceCream(name: String, numCherries: Int, inCone: Boolean)
@@ -96,16 +91,15 @@ val iceCreams: List[IceCream] = List(
 writeCsv(iceCreams)
 ```
 
-### Resolving instances
+### Résoudre les instances
 
-Type classes are very flexible
-but they require us to define instances
-for every type we care about.
-Fortunately, the Scala compiler has a few tricks up its sleeve
-to resolve instances for us given sets of user-defined rules.
-For example, we can write a rule
-that creates a `CsvEncoder` for `(A, B)`
-given `CsvEncoders` for `A` and `B`:
+Les types classes sont tres flexible mais elles nous imposent
+de définir une instance pour 
+chaque type qui nous intéressent.
+Heureusement, le compilateur de Scala a plus d'un tour dans sont sac,
+si on lui donne certaines regles, il est capable de résoudre les instances pour nous.  
+Par exemple, l'on peut ecrire un règle qui nous crée un `CsvEncoder` pour `(A, B)` pour
+un `CsvEncoders` pour `A` et un pour `B` donnée:
 
 ```tut:book:silent
 implicit def pairEncoder[A, B](
@@ -121,38 +115,40 @@ implicit def pairEncoder[A, B](
   }
 ```
 
-When all the parameters to an `implicit def`
-are themselves marked as `implicit`,
-the compiler can use it as a resolution rule
-to create instances from other instances.
-For example, if we call `writeCsv`
-and pass in a `List[(Employee, IceCream)]`,
-the compiler is able to combine
-`pairEncoder`, `employeeEncoder`, and `iceCreamEncoder`
-to produce the required `CsvEncoder[(Employee, IceCream)]`:
+Quand tous les parametres d'un `implicit def`
+sont eux meme marquer `implicit`,
+alors le compilateur peut l'utiliser comme une règle de résolution
+pour crée des instance a partire d'autres instances.
+Par exemple, si l'on appel `writeCsv` 
+et qu'on lui passe une `List[(Employee, IceCream)]`,
+le compilateur est capable de combiner
+`pairEncoder`, `employeeEncoder` et `iceCreamEncoder` 
+pour produire le `CsvEncoder[(Employee, IceCream)]` requis:
 
 ```tut:book
 writeCsv(employees zip iceCreams)
 ```
 
-Given a set of rules
-encoded as `implicit vals` and `implicit defs`,
-the compiler is capable of *searching* for
-combinations to give it the required instances.
-This behaviour, known as "implicit resolution",
-is what makes the type class pattern so powerful in Scala.
+A partir d'une liste de règles ecrite a partir de 
+`implicit vals` et de `implicit defs`,
+le compilateur est capable de *rechèrcher* les combinaisons 
+pour données l'instance requise.
 
-Even with this power,
-the compiler can't pull apart
-our case classes and sealed traits.
-We are required to define instances for ADTs by hand.
-Shapeless' generic representations change all of this,
-allowing us to derive instances for any ADT for free.
 
-### Idiomatic type class definitions {#sec:generic:idiomatic-style}
+Cette fonctionalité, connue sous le nom de "résolution d'implicits",
+et ce qui rand le pattern des types classes si puissant en Scala.
 
-The commonly accepted idiomatic style for type class definitions
-includes a companion object containing some standard methods:
+Même avec cette puissance, le compilateur 
+ne peut démenteler nos case classes et traits scelé.
+L'on est tenu de définir a la mains les instance de nos ADTs.
+Les représentation générique de shapeless change la donne,
+car ils nous permettes de déduire automatiquement les instances de nimporte quel ADT.
+
+### Les définitions de type class idiomatique {#sec:generic:idiomatic-style}
+
+Le style généralement accépter pour la définition d'une type classe idiomatique 
+Il est généralement accépte d'inclure un objet compagon contenant certaines methode standar 
+lors de la définition d'une type classe idiomatique :
 
 ```tut:book:silent
 object CsvEncoder {
@@ -171,28 +167,26 @@ object CsvEncoder {
 }
 ```
 
-The `apply` method, known as a "summoner" or "materializer",
-allows us to summon a type class instance given a target type:
+La methode `apply` connue sous le nom de "summoner" ou "materializer",
+nous permet d'invoquer une instance de type class selon un type donnée:
+
 
 ```tut:book
 CsvEncoder[IceCream]
 ```
-
-In simple cases the summoner does the same job as
-the `implicitly` method defined in `scala.Predef`:
+Dans les cas les plus simple le "summoner" fait la meme chose
+ que la méhode `implicitly` définie dans `scala.Predef`:
 
 ```tut:book
 implicitly[CsvEncoder[IceCream]]
 ```
-
-However,
-as we will see in Section [@sec:type-level-programming:depfun],
-when working with shapeless we encounter situations
-where `implicitly` doesn't infer types correctly.
-We can always define the summoner method to do the right thing,
-so it's worth writing one for every type class we create.
-We can also use a special method from shapeless called "`the`"
-(more on this later):
+Cependent, comme nous le verons dans la Section [@sec:type-level-programming:depfun],
+lors que l'on travaille avec shapeless il arrive que 
+la methode `implicitly` n'infère pas les types correctement.
+L'on peut toujours définir une methode summoner pour avoir le bon comportement,
+donc sela vaux le cup d'un écrire une pour chaque type class que l'on crée.
+L'on peut aussi utiliser une methode de shapeless appeler "`the`"
+(nous y reviendrons):
 
 ```tut:book:silent
 import shapeless._
@@ -201,10 +195,10 @@ import shapeless._
 ```tut:book
 the[CsvEncoder[IceCream]]
 ```
+La methode `instance` parfois appelé `pure`,
+fournis une syntaxe simple pour crée de nouvelle instance de type classe,
+réduisant au passage le boilerplate pour les classes anoymes:
 
-The `instance` method, sometimes named `pure`,
-provides a terse syntax for creating new type class instances,
-reducing the boilerplate of anonymous class syntax:
 
 ```tut:book:silent
 implicit val booleanEncoder: CsvEncoder[Boolean] =
@@ -214,7 +208,7 @@ implicit val booleanEncoder: CsvEncoder[Boolean] =
   }
 ```
 
-down to something much shorter:
+Est réduit en:
 
 ```tut:book:invisible
 import CsvEncoder.instance
@@ -224,14 +218,13 @@ import CsvEncoder.instance
 implicit val booleanEncoder: CsvEncoder[Boolean] =
   instance(b => if(b) List("yes") else List("no"))
 ```
+Malheursement,
+les limitation imposer par le livre 
+nous empèche d'écrire un grand singleton 
+contenant beaucoup de méthode et d'instances.
+Nous préférons donc décrire les définitons en 
+dehors de leurs object compagnon.
+Ceci est a garder a l'esprit lorse que vous lisez ce livre
+mais rappelez vous que code complet se trouve dans le repository
+linké dans la Section [@sec:intro:about-this-book]
 
-Unfortunately,
-several limitations of typesetting code in a book
-prevent us writing long singletons
-containing lots of methods and instances.
-We therefore tend to describe definitions
-outside of their context in the companion object.
-Bear this in mind as you read
-and check the accompanying repo
-linked in Section [@sec:intro:about-this-book]
-for complete worked examples.

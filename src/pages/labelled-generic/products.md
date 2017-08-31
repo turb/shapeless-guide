@@ -1,14 +1,14 @@
-## Deriving product instances with *LabelledGeneric*
+## Déduire l'instance d'un produit avec *LabelledGeneric*
 
-We'll use a running example of JSON encoding
-to illustrate `LabelledGeneric`.
-We'll define a `JsonEncoder` type class
-that converts values to a JSON AST.
-This is the approach taken by
-Argonaut, Circe, Play JSON, Spray JSON,
-and many other Scala JSON libraries.
+Nous allons utiliser un exemple fonctionnel
+d'encodage de Json pour illustrer `LabelledGeneric`.
+Nous allons définir une type classe `JsonEncoder`
+qui va convertir nos valeurs en AST JSON.
+C'est l'approche adoptée par
+Argonaut, Circe, Play JSON, Spray JSON
+et de nombreuses autres bibliothèques scala pour le JSON.
 
-First we'll define our JSON data type:
+Tout d'abord, définissons le type de données de notre JSON :
 
 ```tut:book:silent
 sealed trait JsonValue
@@ -20,7 +20,7 @@ case class JsonBoolean(value: Boolean) extends JsonValue
 case object JsonNull extends JsonValue
 ```
 
-then the type class for encoding values as JSON:
+puis la type class pour encoder les valeurs en JSON :
 
 ```tut:book:silent
 trait JsonEncoder[A] {
@@ -32,7 +32,7 @@ object JsonEncoder {
 }
 ```
 
-then a few primitive instances:
+puis quelques instances primitives :
 
 ```tut:book:silent
 def createEncoder[A](func: A => JsonValue): JsonEncoder[A] =
@@ -53,7 +53,7 @@ implicit val booleanEncoder: JsonEncoder[Boolean] =
   createEncoder(bool => JsonBoolean(bool))
 ```
 
-and a few instance combinators:
+et quelques combinateurs d'instance :
 
 ```tut:book:silent
 implicit def listEncoder[A]
@@ -65,15 +65,15 @@ implicit def optionEncoder[A]
   createEncoder(opt => opt.map(enc.encode).getOrElse(JsonNull))
 ```
 
-Ideally, when we encode ADTs as JSON,
-we would like to use the correct field names in the output JSON:
+Idéalement, lorsqu'on encode un ADT en JSON,
+on voudrait utiliser les noms des champs dans la sortie JSON :
 
 ```tut:book:silent
 case class IceCream(name: String, numCherries: Int, inCone: Boolean)
 
 val iceCream = IceCream("Sundae", 1, false)
 
-// Ideally we'd like to produce something like this:
+// Idéalement, on voudrait produire quelque chose comme suit :
 val iceCreamJson: JsonValue =
   JsonObject(List(
     "name"        -> JsonString("Sundae"),
@@ -82,9 +82,8 @@ val iceCreamJson: JsonValue =
   ))
 ```
 
-This is where `LabelledGeneric` comes in.
-Let's summon an instance for `IceCream`
-and see what kind of representation it produces:
+C'est à ce moment que `LabelledGeneric` devient utile.
+Invoquons une instance de `IceCream` et regardons sa représentation :
 
 ```tut:book:silent
 import shapeless.LabelledGeneric
@@ -94,7 +93,7 @@ import shapeless.LabelledGeneric
 val gen = LabelledGeneric[IceCream].to(iceCream)
 ```
 
-For clarity, the full type of the `HList` is:
+Pour plus de clareté voici le type complet de la `HList`:
 
 ```scala
 // String  with KeyTag[Symbol with Tagged["name"], String]     ::
@@ -103,21 +102,20 @@ For clarity, the full type of the `HList` is:
 // HNil
 ```
 
-The type here is slightly more complex than we have seen.
-Instead of representing the field names with literal string types,
-shapeless is representing them with symbols tagged with literal string types.
-The details of the implementation aren't particularly important:
-we can still use `Witness` and `FieldType` to extract the tags,
-but they come out as `Symbols` instead of `Strings`[^future-tags].
+Ce type est un peu plus complexe que ce que nous avons vu jusqu'à présent.
+Plutôt que représenter les noms des champs avec des types string littéraux,
+shapeless les représente avec des symbôles taggés grâce à des types littéraux.
+Les détails d'implémentation ne sont pas particulièrement importants :
+on peut toujours utiliser `Witness` et `FieldType` pour extraire les tags,
+mais ils ressortiront en `Symbols` et non pas en `Strings`[^future-tags].
 
-[^future-tags]: Future versions of shapeless may switch
-to using `Strings` as tags.
+[^future-tags]: Les futures versions de shapeless pourraient utiliser les `Strings` comme tags.
 
-### Instances for *HLists*
+### Les instances de *HLists*
 
-Let's define `JsonEncoder` instances for `HNil` and `::`.
-Our encoders are going to generate and manipulate `JsonObjects`,
-so we'll introduce a new type of encoder to make that easier:
+Définissons un instance de `JsonEncoder` pour `HNil` et `::`.
+Nos encodeurs vont générer et manipuler des `JsonObjects`,
+nous allons donc créer un nouveau type d'encodeur pour nous faciliter la vie :
 
 ```tut:book:silent
 trait JsonObjectEncoder[A] extends JsonEncoder[A] {
@@ -131,7 +129,7 @@ def createObjectEncoder[A](fn: A => JsonObject): JsonObjectEncoder[A] =
   }
 ```
 
-The definition for `HNil` is then straightforward:
+La définition de `HNil` devient donc triviale :
 
 ```tut:book:silent
 import shapeless.{HList, ::, HNil, Lazy}
@@ -140,10 +138,10 @@ implicit val hnilEncoder: JsonObjectEncoder[HNil] =
   createObjectEncoder(hnil => JsonObject(Nil))
 ```
 
-The definition of `hlistEncoder` involves a few moving parts
-so we'll go through it piece by piece.
-We'll start with the definition we might expect
-if we were using regular `Generic`:
+La définitoon de `hlistEncoder` ajoute un peu de complexité,
+nous allons donc avancer pas à pas.
+Commençons avec la définition à laquelle
+on pourrait s'attendre si nous utilisions un `Generic`:
 
 ```tut:book:silent
 implicit def hlistObjectEncoder[H, T <: HList](
@@ -153,8 +151,9 @@ implicit def hlistObjectEncoder[H, T <: HList](
 ): JsonEncoder[H :: T] = ???
 ```
 
-`LabelledGeneric` will give us an `HList` of tagged types,
-so let's start by introducing a new type variable for the key type:
+
+`LabelledGeneric` nous donne une `HList` qui contient des types taggés,
+commençons donc par introduire une nouvelle variable de types pour le type de la clef :
 
 ```tut:book:silent
 import shapeless.Witness
@@ -167,9 +166,9 @@ implicit def hlistObjectEncoder[K, H, T <: HList](
 ): JsonObjectEncoder[FieldType[K, H] :: T] = ???
 ```
 
-In the body of our method
-we're going to need the value associated with `K`.
-We'll add an implicit `Witness` to do this for us:
+Dans le corps de notre méthode, nous aurons
+besoin de la valeur associée à `K`.
+Nous allons ajouter un `Witness` implicite qui le fera pour nous :
 
 ```tut:book:silent
 implicit def hlistObjectEncoder[K, H, T <: HList](
@@ -183,12 +182,10 @@ implicit def hlistObjectEncoder[K, H, T <: HList](
 }
 ```
 
-We can access the value of `K` using `witness.value`,
-but the compiler has no way of knowing
-what type of tag we're going to get.
-`LabelledGeneric` uses `Symbols` for tags,
-so we'll put a type bound on `K`
-and use `symbol.name` to convert it to a `String`:
+On peut accéder à la valeur de `K` en utilisant `witness.value`,
+mais le compilateur n'a aucun moyen de savoir quel type de tag nous allons obtenir.
+`LabelledGeneric` utilise `Symbols` pour les tags, nous allons donc mettre un type bound a `K`
+et utiliser `symbol.name` pour le convertir en `String`:
 
 ```tut:book:silent
 implicit def hlistObjectEncoder[K <: Symbol, H, T <: HList](
@@ -202,8 +199,8 @@ implicit def hlistObjectEncoder[K <: Symbol, H, T <: HList](
 }
 ```
 
-The rest of the definition uses
-the principles we covered in Chapter [@sec:generic]:
+Le reste de la définition utilise les principes
+que nous avons abordés dans le chapitre [@sec:generic]:
 
 ```tut:book:silent
 implicit def hlistObjectEncoder[K <: Symbol, H, T <: HList](
@@ -222,11 +219,11 @@ implicit def hlistObjectEncoder[K <: Symbol, H, T <: HList](
 
 ```
 
-### Instances for concrete products
+### Les instances pour les produits concrêt.
 
-Finally let's turn to our generic instance.
-This is identical to the definitions we've seen before,
-except that we're using `LabelledGeneric` instead of `Generic`:
+Enfin, revenons à notre instance générique.
+Elle est identique aux définitions que nous avons vues précédemment,
+à l'exception que nous utilisons `LabelledGeneric` à la place de `Generic`:
 
 ```tut:book:silent
 import shapeless.LabelledGeneric
@@ -241,10 +238,10 @@ implicit def genericObjectEncoder[A, H](
   }
 ```
 
-And that's all we need!
-With these definitions in place
-we can serialize instances of any case class
-and retain the field names in the resulting JSON:
+Et voilà tout ce dont nous avons besoin !
+Avec ces définitions en place nous pouvons
+sérialiser les instances de n'importe quelle case class
+et conserver les noms des champs dans le JSON obtenu :
 
 ```tut:book
 JsonEncoder[IceCream].encode(iceCream)

@@ -1,23 +1,25 @@
-## Case study: case class migrations {#sec:ops:migration}
+## Étude de cas : migration de case class {#sec:ops:migration}
 
-The power of ops type classes fully crystallizes
-when we chain them together
-as building blocks for our own code.
-We'll finish this chapter with a compelling example:
-a type class for performing "migrations"
-(aka "evolutions") on case classes[^database-migrations].
-For example, if version 1 of our app contains the following case class:
+La puissance des type classes ops se conrétise
+quand on assemble dans notre propre code.
+Nous allons conclure ce chapitre avec un exemple probant :
+une type classe visant à effectuer des « migrations » (ou « évolutions »)
+de case classes[^database-migrations].
+Par exemple, si la version 1 de notre application contient la case classe suivante :
 
-[^database-migrations]: The term is stolen from
-"database migrations"---SQL scripts that
-automate upgrades to a database schema.
+[^database-migrations]: Le terme est tiré de
+« migrations de base de donnée » :
+des scripts SQL qui automatise la
+mise à jour des schémas de base de données.
+
 
 ```tut:book:silent
 case class IceCreamV1(name: String, numCherries: Int, inCone: Boolean)
 ```
 
-our migration library should enable certain
-mechanical "upgrades" for free:
+Notre bibliothèque de migration doit pouvoir
+faire certaines mises à jour « mécanique » pour nous :
+
 
 ```tut:book:silent
 // Remove fields:
@@ -31,32 +33,28 @@ case class IceCreamV2c(
   name: String, inCone: Boolean, numCherries: Int, numWaffles: Int)
 ```
 
-Ideally we'd like to be able to write code like this:
+Idéalement on aimerait être capables d'écrire le code suivant :
 
 ```scala
 IceCreamV1("Sundae", 1, false).migrateTo[IceCreamV2a]
 ```
 
-The type class should take care of the migration
-without additional boilerplate.
+La type class doit prendre soin de la migration sans boilerplate additionel.
 
-### The type class
+### La type class
 
-The `Migration` type class represents
-a transformation from a source to a destination type.
-Both of these are going to be "input" types in our derivation,
-so we model both as type parameters.
-We don't need an `Aux` type alias
-because there are no type members to expose:
+La type class `Migration` représente la transformation d'une source vers un type destination.
+Ils seront tous les deux les paramètres de type pour notre déduction.
+Nous n'avons pas besoin d'alias de type `Aux`
+car il n'y a pas de membre de type à exposer :
 
 ```tut:book:silent
 trait Migration[A, B] {
   def apply(a: A): B
 }
 ```
-
-We'll also introduce an extension method
-to make examples easier to read:
+Nous allons également ajouter une méthode d'extension
+pour rendre les exemples plus simples à lire :
 
 ```tut:book:silent
 implicit class MigrationOps[A](a: A) {
@@ -65,21 +63,21 @@ implicit class MigrationOps[A](a: A) {
 }
 ```
 
-### Step 1. Removing fields
+### Étape 1. Enlever les champs
 
-Let's build up the solution piece by piece,
-starting with field removal.
-We can do this in several steps:
+Construison notre solution pièce par pièce,
+en commençant par la suppression de champs.
+Nous pouvons y arriver en plusieurs étapes :
 
- 1. convert `A` to its generic representation;
- 2. filter the `HList` from step 1---only retain
-    fields that are also in `B`;
- 3. convert the output of step 2 to `B`.
+ 1. convertir `A` dans sa représentation générique ;
+ 2. filter la `HList` de l'étape 1, garder uniquement les champs qui sont présents dans `A` et `B` ;
+ 3. convertir le résultat de l'étape 2 en `B`.
 
-We can implement steps 1 and 3 with `Generic` or `LabelledGeneric`,
-and step 2 with an op called `Intersection`.
-`LabelledGeneric` seems a sensible choice
-because we need to identify fields by name:
+Nous pouvons implémenter l'étape 1 et 3 avec `Generic` ou `LabelledGeneric`,
+l'étape 2 peut l'être avec un op appelé `Intersection`.
+`LabelledGeneric` semble être un choix intéressant
+car nous avons besoin d'identifier le nom des champs :
+
 
 ```tut:book:silent
 import shapeless._
@@ -96,36 +94,32 @@ implicit def genericMigration[A, B, ARepr <: HList, BRepr <: HList](
 }
 ```
 
-Take a moment to locate [`Intersection`][code-ops-hlist-intersection]
-in the shapeless codebase.
-Its `Aux` type alias takes three parameters:
-two input `HLists` and one output for the intersection type.
-In the example above we are specifying
-`ARepr` and `BRepr` as the input types
-and `BRepr` as the output type.
-This means implicit resolution will only succeed
-if `B` has an exact subset of the fields of `A`,
-specified with the exact same names in the same order:
+Prenez un moment pour localiser [`Intersection`][code-ops-hlist-intersection]
+dans la base de code de shapeless.
+L'alias de type `Aux` prend en compte trois paramètres :
+deux `HLists` qui sont les entrées et une pour le type du résultat de l'intersection.
+Dans l'exemple au-dessus nous spécifions `ARepr` et `BRepr` comme type d'entrée et `BRepr` comme type de retour.
+Ce qui signifie que la résolution d'implicite ne fonctionnera que si `B` contient l'exact sous-ensemble des champs de `A`,
+avec exactement les mêmes noms et dans le même ordre :
 
 ```tut:book
 IceCreamV1("Sundae", 1, true).migrateTo[IceCreamV2a]
 ```
 
-We get a compile error if
-we try to use `Migration` with non-conforming types:
+Nous obtenons une erreur de compilation si nous
+essayons d'utiliser `Migration` avec un type non conforme :
 
 ```tut:book:fail
 IceCreamV1("Sundae", 1, true).migrateTo[IceCreamV2b]
 ```
 
-### Step 2. Reordering fields
+### Etape 2. Réordonner les champs
 
-We need to lean on another ops type class
-to add support for reordering.
-The [`Align`][code-ops-hlist-align] op
-lets us reorder the fields in one `HList`
-to match the order they appear in another `HList`.
-We can redefine our instance using `Align` as follows:
+Nous avons besoin d'une autre ops type class
+pour pouvoir faire du réordonnement.
+L'op [`Align`][code-ops-hlist-align] nous permet de réordonner les champs d'une `HList`
+pour faire correspondre l'ordre d'une autre `HList`.
+Nous pouvons redéfinir notre instance en utilisant `Align` de la manière suivante :
 
 ```tut:book:silent
 implicit def genericMigration[
@@ -143,13 +137,11 @@ implicit def genericMigration[
     bGen.from(align.apply(inter.apply(aGen.to(a))))
 }
 ```
-
-We introduce a new type parameter called `Unaligned`
-to represent the intersection of `ARepr` and `BRepr`
-before alignment,
-and use `Align` to convert `Unaligned` to `BRepr`.
-With this modified definition of `Migration`
-we can both remove and reorder fields:
+Nous ajoutons un nouveau paramètre de type appelé `Unaligned`
+pour représenter l'intersection de `ARepr` et `BRepr` avant l'alignement,
+on utilise `Align` pour convertir `Unaligned` en `BRepr`.
+Avec cette modification de `Migration` nous pouvons à
+la fois retirer mais aussi réordonner les champs :
 
 ```tut:book
 IceCreamV1("Sundae", 1, true).migrateTo[IceCreamV2a]
@@ -157,19 +149,19 @@ IceCreamV1("Sundae", 1, true).migrateTo[IceCreamV2b]
 
 ```
 
-However, if we try to add fields we still get a failure:
+Cependant, si on essaie d'ajouter un champ, on obtient encore une erreur :
 
 ```tut:book:fail
 IceCreamV1("Sundae", 1, true).migrateTo[IceCreamV2c]
 ```
 
-### Step 3. Adding new fields
+### Etape 3. Ajouter de nouveaux champs
 
-We need a mechanism for calculating default values
-to support the addition of new fields.
-Shapeless doesn't provide a type class for this,
-but Cats does in the form of a `Monoid`.
-Here's a simplified definition:
+Pour soutenir l'ajout de champs nous avons
+besoin d'un mécanisme pour fournir les valeurs par défaut.
+Shapeless ne fournit pas une type class pour cette raison,
+mais Cats le fait, sous la forme d'un `Monoid`.
+En voici une définition simplifiée :
 
 ```scala
 package cats
@@ -180,17 +172,16 @@ trait Monoid[A] {
 }
 ```
 
-`Monoid` defines two operations:
-`empty` for creating a "zero" value
-and `combine` for "adding" two values.
-We only need `empty` in our code,
-but it will be trivial to define `combine` as well.
+Un `Monoid` dispose de deux opérations :
+`empty` pour créer une valeur « zéro »
+et `combine` pour « fusionner » deux valeurs en une seule.
+Dans notre code nous n'avons besoin que de `empty`
+mais il serait trivial de définir également`combine`.
 
-Cats provides instances of `Monoid`
-for all the primitive types we care about
-(`Int`, `Double`, `Boolean`, and `String`).
-We can define instances for `HNil` and `::`
-using the techniques from Chapter [@sec:labelled-generic]:
+Cats fournis une instance de `Monoid` pour chacun des type
+primitf qui nous intéresse (`Int`, `Double`, `Boolean`, and `String`).
+Nous pouvons définir une instance pour `HNil`et `::`
+en utilisant les techniques du Chapitre [@sec:labelled-generic]:
 
 ```tut:book:silent
 import cats.Monoid
@@ -218,25 +209,26 @@ implicit def emptyHList[K <: Symbol, H, T <: HList](
   }
 ```
 
-We need to combine `Monoid`[^monoid-pun] with a couple of other ops
-to complete our final implementation of `Migration`.
-Here's the full list of steps:
+Nous devons combiner `Monoid`[^monoid-pun] avec quelques
+autre ops pour compléter notre implémentation finale de  `Migration`.
+Voici la liste complète des étapes :
 
- 1. use `LabelledGeneric` to convert `A` to its generic representation;
- 2. use `Intersection` to calculate an `HList` of fields common to `A` and `B`;
- 3. calculate the types of fields that appear in `B` but not in `A`;
- 4. use `Monoid` to calculate a default value of the type from step 3;
- 5. append the common fields from step 2 to the new field from step 4;
- 6. use `Align` to reorder the fields from step 5 in the same order as `B`;
- 7. use `LabelledGeneric` to convert the output of step 6 to `B`.
+ 1. utiliser `LabelledGeneric` pour convertir `A` dans sa représentation générique ;
+ 2. utiliser `Intersection` pour calculer `HList` des champs communs entre `A` et `B` ;
+ 3. calculer les types qui apparaissent dans `B` mais pas dans `A` ;
+ 4. utiliser `Monoid` pour calculer une valeur par défaut au type de l'étape 3 ;
+ 5. ajouter les champs de l'étape 2 aux nouveaux champs de l'étape 4 ;
+ 6. utiliser `Align` pour réordonner les champs de l'étape 5 dans le même ordre que `B` ;
+ 7. utiliser `LabelledGeneric` pour convertir le résultat de l'étape 6 vers `B`.
 
-[^monoid-pun]: Pun intended.
+[^monoid-pun]: Le jeu de mots est intentionel.
+(note du traducteur: jeu d emot intraduisible)
 
-We've already seen how to implement steps 1, 2, 4, 6, and 7.
-We can implement step 3 using an op called `Diff`
-that is very similar to `Intersection`,
-and step 5 using another op called `Prepend`.
-Here's the complete solution:
+Nous avons déja vu comment implémenter les étapes 1, 2, 4, 6 et 7.
+Nous pouvons implémenter l'étape 3 en utilisant un op appelé `Diff`
+qui est très similaire à `Intersection`,
+et nous pouvons implémenter l'étape 5 en utilisant un autre op appélé `Prepend`.
+Voici la solution complète :
 
 ```tut:book:silent
 implicit def genericMigration[
@@ -258,15 +250,14 @@ implicit def genericMigration[
   }
 ```
 
-Note that this code doesn't use
-every type class at the value level.
-We use `Diff` to calculate the `Added` data type,
-but we don't actually need `diff.apply` at run time.
-Instead we use our `Monoid` to summon an instance of `Added`.
+Notez que ce code n'évalue pas toutes les type classes.
+Nous utilisons `Diff` uniquement pour calculer le type de données `Added`,
+mais nous n'avons pas besoin d'exécuter `diff.apply`.
+Au lieu de cela, nous utilisons notre `Monoid` pour invoquer une instance de `Added`.
 
-With this final version of the type class instance in place
-we can use `Migration` for all the use cases we set out
-at the beginning of the case study:
+Avec cette dernière version de la type class nous pouvons utiliser
+`Migration` pour tous les cas d'utilisation que nous avions données au
+début de cette étude de cas :
 
 ```tut:book
 IceCreamV1("Sundae", 1, true).migrateTo[IceCreamV2a]
@@ -274,10 +265,11 @@ IceCreamV1("Sundae", 1, true).migrateTo[IceCreamV2b]
 IceCreamV1("Sundae", 1, true).migrateTo[IceCreamV2c]
 ```
 
-It's amazing what we can create with ops type classes.
-`Migration` has a single `implicit def`
-with a single line of value-level implementation.
-It allows us to automate migrations between *any* pair of case classes,
-in roughly the same amount of code we'd write
-to handle a *single* pair of types using the standard library.
-Such is the power of shapeless!
+C'est incroyable tout ce que nous pouvons faire avec les type class ops.
+`Migration` ne contient qu'une `implicit def` avec une seul ligne d'implémentation
+au value-level.
+Cela nous permet d'automatiser les migrations entre *n'importe* quelle paire de case classes,
+avec approximativement la même quantité de code
+nécessiare pour gérer une *seule* paire
+de types en utilisant une bibliothèque standard.
+C'est la grande puissance de shapeless !

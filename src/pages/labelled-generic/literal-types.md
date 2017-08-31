@@ -1,10 +1,8 @@
-## Literal types
+## Types littéreaux.
 
-A Scala value may have multiple types.
-For example, the string `"hello"`
-has at least three types:
-`String`, `AnyRef`,
-and `Any`[^multiple-inheritance]:
+Une valeur de scala peut avoir plusieurs types.
+Par exemple, la string `"hello"` a au moins trois types :
+`String`, `AnyRef` et `Any`[^multiple-inheritance] :
 
 ```tut:book
 "hello" : String
@@ -13,15 +11,13 @@ and `Any`[^multiple-inheritance]:
 ```
 
 [^multiple-inheritance]:
-`String` also has a bunch of other types
-like `Serializable` and `Comparable`
-but let's ignore those for now.
+`String` est également doté de pluisieurs autres types tels que 
+`Serializable` et `Comparable`, mais ignorons-les pour l'instant.
 
-Interestingly, `"hello"` also has another type:
-a "singleton type"
-that belongs exclusively to that one value.
-This is similar to the singleton type we get
-when we define a companion object:
+`"hello"` a aussi un autre type :
+un  "type singleton" qui appartient exclusivement à cette valeur.
+Le résultat est similaire à ce que l'on obtient
+lorsqu'on définit un object compagnon.
 
 ```tut:book:silent
 object Foo
@@ -31,15 +27,14 @@ object Foo
 Foo
 ```
 
-The type `Foo.type` is the type of `Foo`,
-and `Foo` is the only value with that type.
+Le type `Foo.type` est le type de `Foo`,
+et `Foo` est la seule et unique valeur pour ce type.
 
-Singleton types applied to literal values are called *literal types*.
-These have existed in Scala for a long time,
-but we don't normally interact with them
-because the default behaviour of the compiler is
-to "widen" literals to their nearest non-singleton type.
-For example, these two expressions are essentially equivalent:
+Les types singleton appliqués aux valeurs littérales sont appelés *types littéraux*.
+Ils existent depuis longtemps dans Scala,
+mais il n'y a normalement pas d'interaction avec eux, car le compilateur "élargit" par défaut les littéraux au type non singleton le plus proche.
+Par exemple, ces deux expressions sont essentiellement équivalentes :
+
 
 ```tut:book
 "hello"
@@ -47,9 +42,10 @@ For example, these two expressions are essentially equivalent:
 ("hello" : String)
 ```
 
-Shapeless provides a few tools for working with literal types.
-First, there is a `narrow` macro that converts a
-literal expression to a singleton-typed literal expression:
+Shapeless fournit quelques outils pour travailler avec les types littéraux.
+Tout d'abord, la macro `narrow` convertit 
+une expression littérale en une expression littérale typée par un singleton :
+
 
 ```tut:book:silent
 import shapeless.syntax.singleton._
@@ -59,23 +55,23 @@ import shapeless.syntax.singleton._
 var x = 42.narrow
 ```
 
-Note the type of `x` here: `Int(42)` is a literal type.
-It is a subtype of `Int` that only contains the value `42`.
-If we attempt to assign a different number to `x`,
-we get a compile error:
+Notez que le type de `x`: `Int(42)` est un type littéral.
+Il s'agit d'un sous-type de `Int` qui contient uniquement la valeur `42`.
+Si l'on essaie d'assigner une valeur différente à `x`,
+on obtient une erreur de compilation :
 
 ```tut:book:fail
 x = 43
 ```
 
-However, `x` is still an `Int` according to normal subtyping rules.
-If we operate on `x` we get a regular type of result:
+Pourtant, `x` est toujours un sous type normal de `Int`.
+Si l'on fait des opérations sur `x`, on obtient bien un type normal pour résultat :
 
 ```tut:book
 x + 1
 ```
 
-We can use `narrow` on any literal in Scala:
+Nous pouvons utiliser `narrow` avec n'importe quel type littéral Scala :
 
 ```tut:book
 1.narrow
@@ -84,86 +80,81 @@ true.narrow
 // and so on...
 ```
 
-However, we can't use it on compound expressions:
+Malheureusement, on ne peut pas les utiliser dans une expression composée :
 
 ```tut:book:fail
 math.sqrt(4).narrow
 ```
 
 <div class="callout callout-info">
-*Literal types in Scala*
+*Types littéraux en Scala*
 
-Until recently, Scala had no syntax for writing literal types.
-The types were there in the compiler
-but we couldn't express them directly in code.
-However, as of Lightbend Scala 2.12.1, Lightbend Scala 2.11.9,
-and Typelevel Scala 2.11.8 we have
-direct syntax support for literal types.
-In these versions of Scala
-we can write declarations like the following:
+Jusqu'à récament, Scala ne disposait pas de syntaxe pour écrire les types littéraux.
+Les types étaient là, dans le compilateur, mais nous ne pouvions pas les écrire directement dans le code.
+Mais grâce aux versions de Lightbend Scala 2.12.1, Lightbend Scala 2.11.9,
+et Typelevel Scala 2.11.8, nous disposons désormais d'un support direct de la syntaxe pour les types littéraux.
+Dans ces versions de Scala, nous pouvons écrire les déclarations de la façon suivante :
 
 ```scala
 val theAnswer: 42 = 42
 ```
+Le type `42` est le même que le type `Int(42)` que nous avons vu précédemment.
+Vous verrez toujours `Int(42)` dans les sorties pour des raisons de pérennité,
+mais la syntaxe canonique restera `42`.
 
-The type `42` is the same as the type `Int(42)`
-we saw in printed output earlier.
-You'll still see `Int(42)` in output for legacy reasons,
-but the canonical syntax going forward is `42`.
 </div>
 
-## Type tagging and phantom types {#sec:labelled-generic:type-tagging}
+## Le type tagging et les types fantômes {#sec:labelled-generic:type-tagging}
 
-Shapeless uses literal types
-to model the names of fields in case classes.
-It does this by "tagging" the types of the fields
-with the literal types of their names.
-Before we see how shapeless does this,
-we'll do it ourselves to show that there's no magic
-(well... minimal magic, at any rate).
-Suppose we have a number:
+Shapeless utilise les types littéraux pour modéliser les noms de champs des case classes.
+Pour ce faire, il "tag" les types des champs avec le type littéral de leurs noms.
+Avant de découvrir comment shapeless réalise cela, faisons-le nous-même pour montrer que la magie n'y est pour rien
+(enfin... pas vraiment).
+Supposons un nombre :
 
 ```tut:book:silent
 val number = 42
 ```
+Ce nombre est un `Int` dans deux mondes :
+à l'execution où il a réellement une valeur
+et des méthodes que l'on peut appeler,
+et à la compilation, où le compilateur utilise 
+le type pour calculer quelle partie 
+de code fonctionne ensemble 
+et l'utilise pour rechercher les implicits.
 
-This number is an `Int` in two worlds:
-at runtime, where it has an actual value
-and methods that we can call,
-and at compile-time,
-where the compiler uses the type
-to calculate which pieces of code work together
-and to search for implicits.
-
-We can modify the type of `number` at compile time
-without modifying its run-time behaviour
-by "tagging" it with a "phantom type".
-Phantom types are types with no run-time semantics,
-like this:
+On peut modifier le type du `number` à la compilation
+sans modifier ces valeurs
+à l'execution en le "taggant" avec un "type fantôme".
+Les types fantômes sont des types qui 
+ne présentent pas de sémantique à l'exécution, 
+comme ceci :
 
 ```tut:book:silent
 trait Cherries
 ```
 
-We can tag `number` using `asInstanceOf`.
-We end up with a value that is both
-an `Int` and a `Cherries` at compile-time,
-and an `Int` at run-time:
+Nous pouvons tagger le `number` en utilisant `asInstanceOf`.
+Nous finissons avec une valeur qui est 
+à la fois un `Int` et une `Cherries` à la compilation
+et uniquement un `Int` à l'execution :
 
 ```tut:book
 val numCherries = number.asInstanceOf[Int with Cherries]
 ```
 
-Shapeless uses this trick to tag
-fields and subtypes in an ADT
-with the singleton types of their names.
-If you find using `asInstanceOf` uncomfortable then don't worry:
-shapeless provides two tagging syntaxes
-to avoid such unsavoriness.
+Shapeless utilise cette astuce pour tagger les champs et les sous-types d'un ADT 
+avec le type singleton de leurs noms.
+Si l'utilisation de `asInstanceOf`
+vous dérange, ne vous inquiétez pas :
+Shapeless fournit deux syntaxes de 
+tagging qui vous éviteront ce désagrément.
 
-The first syntax, `->>`,
-tags the expression on the right of the arrow
-with the singleton type of the literal expression on the left:
+
+La première syntaxe :  `->>`
+tag l'expression à droite de la flèche avec 
+le type singleton de l'expression littérale à droite de la flèche.
+
 
 ```tut:book:silent
 import shapeless.labelled.{KeyTag, FieldType}
@@ -176,22 +167,23 @@ val someNumber = 123
 val numCherries = "numCherries" ->> someNumber
 ```
 
-Here we are tagging `someNumber` with
-the following phantom type:
+Voila comment nous taggons `someNumber`
+avec la type fantome suivant:
+
 
 ```scala
 KeyTag["numCherries", Int]
 ```
 
-The tag encodes both the name and type of the field,
-the combination of which is useful
-when searching for entries in a `Repr` using implicit resolution.
+Le tag détaille à la fois le nom et le type du champ ;
+la combinaison des deux est utile lorsque 
+l'on recherche des éléments dans un `Repr` en 
+utilisant la résolution d'implicit.
 
-The second syntax takes the tag as a type
-rather than a literal value.
-This is useful when we know what tag to use
-but don't have the ability
-to write specific literals in our code:
+La seconde syntaxe considère le tag comme un type plutôt qu'une valeur littérale.
+C'est utile lorsque vous connaissez le tag à utiliser 
+mais que vous n'avez pas la possibilité 
+d'écrire ce type littéral dans notre code : 
 
 ```tut:book:silent
 import shapeless.labelled.field
@@ -201,29 +193,29 @@ import shapeless.labelled.field
 field[Cherries](123)
 ```
 
-`FieldType` is a type alias that simplifies
-extracting the tag and base types from a tagged type:
+`FieldType` est un alias de type qui simplifie 
+l'extraction du tag et du type de base du type tagger :
 
 ```scala
 type FieldType[K, V] = V with KeyTag[K, V]
 ```
 
-As we'll see in a moment,
-shapeless uses this mechanism to tag
-fields and subtypes with
-their names in our source code.
+Comme nous le verrons plus tard,
+Shapeless emploie ce mécanisme pour tagger 
+les champs et les sous-types avec 
+leurs noms dans notre code source.
 
-Tags exist purely at compile time
-and have no runtime representation.
-How do we convert them to values we can use at runtime?
-Shapeless provides a type class called `Witness` for this purpose[^witness].
-If we combine `Witness` and `FieldType`,
-we get something very compelling---the
-ability to extract the field name
-from a tagged field:
 
-[^witness]: The term "witness" is borrowed from
-[mathematical proofs][link-witness].
+Les tags n'existent qu'à la compilation 
+et n'ont pas de représentation à l'exécution.
+Alors, comment pouvons-nous les convertir en valeurs utilisables à l'exécution ?
+Shapeless fournit à cette fin une type class appelée `Witness`[^witness].
+Si l'on combine `Witness` et `FieldType`, 
+on obtient quelque chose de vraiment intéressant :
+la possibilité d'extraire le nom d'un champ à partir d'un champ tagger :
+
+[^witness] : le terme "witness" est emprunté aux [preuves mathématiques][link-witness]
+
 
 ```tut:book:silent
 import shapeless.Witness
@@ -254,16 +246,15 @@ def getFieldValue[K, V](value: FieldType[K, V]): V =
 getFieldValue(numCherries)
 ```
 
-If we build an `HList` of tagged elements,
-we get a data structure that has some of the properties of a `Map`.
-We can reference fields by tag,
-manipulate and replace them,
-and maintain all of the type and naming information along the way.
-Shapeless calls these structures "records".
+Si nous construisons une `HList` d'éléments taggés,
+nous obtenons une structure de données dotées de certaines propriétés d'une `Map`.
+Nous pouvons faire référénce à un champ par un tag, le manipuler et le remplacer,
+et conserver toutes les information de types et de noms tout du long.
+Shapeless appelle ces structures des "records".
 
-### Records and *LabelledGeneric*
+### Records et *LabelledGeneric*
 
-Records are `HLists` of tagged elements:
+Les records sont des `HLists` d'éléments taggés.
 
 ```tut:book:silent
 import shapeless.{HList, ::, HNil}
@@ -273,7 +264,7 @@ import shapeless.{HList, ::, HNil}
 val garfield = ("cat" ->> "Garfield") :: ("orange" ->> true) :: HNil
 ```
 
-For clarity, the type of `garfield` is as follows:
+Pour être clair, le type de `garfield` est le suivant :
 
 ```scala
 // FieldType["cat",    String]  ::
@@ -281,12 +272,11 @@ For clarity, the type of `garfield` is as follows:
 // HNil
 ```
 
-We don't need to go into depth regarding records here;
-suffice to say that records are the generic representation
-used by `LabelledGeneric`.
-`LabelledGeneric` tags each item in a product or coproduct
-with the corresponding field or type name from the concrete ADT
-(although the names are represented as `Symbols`, not `Strings`).
-Shapeless provides a suite of `Map`-like operations on records,
-some of which we'll cover in Section [@sec:ops:record].
-For now, though, let's derive some type classes using `LabelledGeneric`.
+Nous n'avons pas besoin ici d'approfondir les records :
+en bref, les records sont les représentations génériques utilisées par `LabelledGeneric`.
+`LabelledGeneric` tag chaque champ ou nom de type d'un ADT dans des produits ou des coproduits
+(bien que les noms soient représentés par des `Symbols` et non des `Strings`).
+Shapeless fournit un ensemble d'operations semblables à celles de `Map` pour manipuler les records,
+certaines seront traitées dans la section [@sec:ops:record].
+Pour l'instant, contentons-nous de déduire quelquess type class à l'aide de  `LabelledGeneric`.
+

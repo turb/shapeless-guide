@@ -1,58 +1,52 @@
-## Summary {#sec:type-level-programming:summary}
+## Résumé {#sec:type-level-programming:summary}
 
-When coding with shapeless,
-we are often trying to find a target type
-that depends on values in our code.
-This relationship is called *dependent typing*.
+Lorsque l'on code avec shapeless,
+on cherche souvent à trouver un 
+type qui dépend de valeurs présentes dans le code.
+Cette relation est appelée *Types dépendants*.
 
-Problems involving dependent types
-can be conveniently expressed using implicit search,
-allowing the compiler to resolve
-intermediate and target types
-given a starting point at the call site.
+Les problèmes impliquant les types dépendants peuvent être aisément exprimés via la recherche d'implicites,
+ce qui permet au compilateur de déterminer 
+les types intermédaires et les types ciblés 
+d'après un point de départ à l'emplacement d'appel.
 
-We often have to use multiple steps
-to calculate a result
-(e.g. using a `Generic` to get a `Repr`,
-then using another type class to get to another type).
-When we do this,
-there are a few rules we can follow
-to ensure our code compiles and works as expected:
+Plusieurs étapes sont souvent nécessiares pour 
+calculer le resultat 
+(par exemple : utiliser `Generic` pour avoir un `Repr`, 
+puis utiliser une autre type class pour avoir un autre type).
+Dans ce cas, on peut suivre quelques règles
+pour nous assuer que notre code compile et fonctionne comme prévu :
 
- 1. We should extract every intermediate type
-    out to a type parameter.
-    Many type parameters won't be used in the result,
-    but the compiler needs them to know which types it has to unify.
 
- 2. The compiler resolves implicits from left to right,
-    backtracking if it can't find a working combination.
-    We should write implicits in the order we need them,
-    using one or more type variables
-    to connect them to previous implicits.
+ 1. Il faut placer tout les types intermédiaires dans la liste des paramètres de types.
+    De nombreux paramètres de type ne seront pas utilisés dans le résultat mais le compilateur en a besoin pour savoir quel type il doit unifier.
 
- 3. The compiler can only solve for one constraint at a time,
-    so we mustn't over-constrain any single implicit.
+ 2. Le compilateur résoud les implicites de gauche à droite
+    et effectue du backtracking s'il ne 
+    peut pas trouver une combinaison qui fonctionne.
+    Nous devons donc écrire les implicites dans l'ordre où nous en avons besoin,
+    à l'aide d'une ou plusieurs variables de 
+    types pour les connecter aux implicites précédents.    
 
- 4. We should state the return type explicitly,
-    specifying any type parameters and type members
-    that may be needed elsewhere.
-    Type members are often important,
-    so we should use `Aux` types
-    to preserve them where appropriate.
-    If we don't state them in the return type,
-    they won't be available to the compiler
-    for further implicit resolution.
+ 3. Le compilateur ne peut résoudre qu'une contrainte à la fois,
+    nous ne devons donc pas sur-contraindre un implicite. 
 
- 5. The `Aux` type alias pattern is useful
-    for keeping code readable.
-    We should look out for `Aux` aliases
-    when using tools from the shapeless toolbox,
-    and implement `Aux` aliases
-    on our own dependently typed functions.
+ 4. Il faut énoncer le type de retour explicitement,
+    spécifier tout paramètre de types et tout membre 
+    de types qui pourrait être utilisé ailleurs.
+    Les membres de types sont souvent importants,
+    il faut donc utiliser les types `Aux` pour les préserver 
+    le cas échéant. 
+    Si on ne les énonce pas dans le type de retour 
+    ils ne seront pas disponibles 
+    pour les recherches d'implicites suivantes.
 
-When we find a useful chain of dependently typed operations
-we can capture them as a single type class.
-This is sometimes called the "lemma" pattern
-(a term borrowed from mathematical proofs).
-We'll see an example of this pattern
-in Section [@sec:ops:penultimate].
+ 5. Le pattern du type alias `Aux` reste utile pour maintenir un code propre.
+    Il faut faire attention aux alias `Aux` quand on utilise les outils de la toolbox shapeless
+    et implémenter les alias `Aux` dans nos propres fonctions à types dépendants.
+
+Quand nous trouvons une chaîne d'opération à type dépendant nous pouvons les regrouper
+dans une seule type class.
+Ceci est souvent appelé pattern « lemma »
+(un terme emprunté aux preuves mathématiques).
+Nous verrons un exemple de ce pattern dans la Section [@sec:ops:penultimate].

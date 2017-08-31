@@ -1,25 +1,22 @@
-## Summary
+## Résumé
 
-In this chapter we explored a few of the
-type classes that are provided in the `shapeless.ops` package.
-We looked at `Last` and `Init`
-as two simple examples of the ops pattern,
-and built our own `Penultimate` and `Migration` type classes
-by chaining together existing building blocks.
+Dans ce chapitre, nous avons exploré quelques-unes des types classes qui
+sont fournies par le package `shapeless.ops`.
+Nous nous somme intéréssés à deux exemples simples du pattern ops : `Last` et `Init`,
+et nous avons construit nos propres type classes `Penultimate` et `Migration`
+en associant des briques de construction pré-existantes.
 
-Many of the ops type classes share a similar pattern
-to the ops we've seen here.
-The easiest way to learn them is to
-look at the source code
-in `shapeless.ops` and `shapeless.syntax`.
+De nombreuses type classe ops partagent les mêmes techniques
+que celui des ops que nous avons vus jusqu'ici.
+La facon la plus simple de les apprendre et
+de regarder directement leur code source dans
+`shapeless.ops` and `shapeless.syntax`.
 
-In the next chapters we will look at two suites
-of ops type classes that require further theoretical discussion.
-Chapter [@sec:poly] discusses functional operations
-such as `map` and `flatMap` on `HLists`,
-and Chapter [@sec:nat] discusses
-how to implement type classes that require
-type level representations of numbers.
-This knowledge will help us gain
-a more complete understanding of
-the variety of type classes from `shapeless.ops`.
+Dans le chapitre suivant, nous allons aborder deux ensembles de type classe ops
+qui nécessitent davantage de théorie.
+Le Chapitre [@sec:poly] traite des opérations fonctionnelles comme
+`map` et `flatMap` sur les `HLists`, et le Chapitre [@sec:nat] nous explique
+comment implémenter des type classes qui
+nécessitent une représentation au type level des nombres.
+Ces informations vont nous aider à mieux comprendre
+l'ensemble des type classes de `shapeless.ops`.

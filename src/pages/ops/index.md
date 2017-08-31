@@ -1,45 +1,42 @@
-# Working with *HLists* and *Coproducts* {#sec:ops}
+# Travailler avec *HLists* et *Coproducts* {#sec:ops}
 
-In Part I we discussed methods for
-deriving type class instances
-for algebraic data types.
-We can use type class derivation
-to augment almost any type class,
-although in more complex cases
-we may have to write a lot of supporting code
-for manipulating `HLists` and `Coproducts`.
+Dans la Partie I nous avons abordé des méthodes
+visant à déduire des instances de type
+class pour des types de données algébriques.
+Nous pouvons utiliser la déduction automatique
+d'instance pour enrichir presque toutes les type class,
+cependant dans les cas les plus compliqués, cela nous amène à rédiger beaucoup de code 
+pour manipuler les `HLists` et les `Coproducts`.
 
-In Part II we'll look at the `shapeless.ops` package,
-which provides a set of helpful tools
-that we can use as building blocks.
-Each op comes in two parts:
-a *type class* that we can use during implicit resolution,
-and *extension methods* that we can call on `HList` and `Coproduct`.
+Dans la Partie II, nous allons regarder de plus près le package `shapeless.ops`,
+il fournit un ensemble utile d'outils que 
+l'on peut utiliser comme brique de construction pour nos programmes.
 
-There are three general sets of ops,
-available from three packages:
+Chacun des op se présente en deux parties :
+une *type class* que nous pouvons utiliser pendant la résolution d'implicite
+et des *méthodes d'extension* que nous pouvons appeler sur `HList` et `Coproduct`.
 
-  - `shapeless.ops.hlist` defines type classes for `HLists`.
-    These can be used directly via extension methods on `HList`,
-    defined in `shapeless.syntax.hlist`.
+Il existe trois ensembles d'ops,
+chacun disponible dans un des trois packages suivants :
 
-  - `shapeless.ops.coproduct` defines type classes for `Coproducts`.
-    These can be used directly via extension methods on `Coproduct`,
-    defined in `shapeless.syntax.coproduct`.
+  - `shapeless.ops.hlist` définit des type classes pour `HLists`.
+    Elles peuvent être utilisées directement sur les `HList` via les 
+    méthodes d'extension définies dans `shapeless.syntax.hlist`.
 
-  - `shapeless.ops.record` defines type classes for shapeless records
-    (`HLists` containing
-    tagged elements---Section [@sec:labelled-generic:type-tagging]).
-    These can be used via extension methods on `HList`,
-    imported from `shapeless.record`,
-    and defined in `shapeless.syntax.record`.
+  - `shapeless.ops.coproduct` définit des type classes pour `Coproducts`.
+    Elles peuvent être utilisées directement sur les `Coproduct` via les 
+    méthodes d'extension définies dans `shapeless.syntax.coproduct`.
 
-We don't have room in this book
-to cover all of the available ops.
-Fortunately, in most cases the code
-is understandable and well documented.
-Rather than provide an exhaustive guide,
-we will touch on
-the major theoretical and structural points
-and show you how to extract further information
-from the shapeless codebase.
+  - `shapeless.ops.record` définit des type classes pour shapeless records
+    (des `HLists` contenant des éléments taggés : Section [@sec:labelled-generic:type-tagging]).
+    Elles peuvent être utilisées directement sur les `HLists` importées de `shapeless.record`  via les 
+    méthodes d'extension définies dans `shapeless.syntax.record`.
+    
+Nous n'avons pas le temps dans ce 
+livre d'aborder tous les ops disponibles.
+Par chance, dans la majorité des cas le
+code est compréhensible et bien documenté.
+Plutôt que d'établir un guide exhaustif,
+nous allons aborder les points théoriques et structurels les plus importants
+et vous montrer comment obtenir 
+davantage d'informations de la base de code de shapeless.

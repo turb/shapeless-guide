@@ -1,10 +1,10 @@
-## Generic coproducts
+## Coproduit générique
 
-Now we know how shapeless encodes product types.
-What about coproducts?
-We looked at `Either` earlier
-but that suffers from similar drawbacks to tuples.
-Again, shapeless provides its own encoding that is similar to `HList`:
+Maintenant que nous savons comment shapeless encode les types produit,
+qu'en est t'il des coproduits?
+Précédemment, nous avons abordé le `Either`, mais il souffre
+des mêmes inconvénients que les tuples.
+Encore une fois, shapeless fournit son propre encodage, similaire au `HList` :
 
 ```tut:book:silent
 import shapeless.{Coproduct, :+:, CNil, Inl, Inr}
@@ -16,44 +16,42 @@ case class Green()
 type Light = Red :+: Amber :+: Green :+: CNil
 ```
 
-In general coproducts take the form
-`A :+: B :+: C :+: CNil` meaning "A or B or C",
-where `:+:` can be loosely interpreted as `Either`.
-The overall type of a coproduct
-encodes all the possible types in the disjunction,
-but each concrete instance
-contains a value for just one of the possibilities.
-`:+:` has two subtypes, `Inl` and `Inr`,
-that correspond loosely to `Left` and `Right`.
-We create instances of a coproduct by
-nesting `Inl` and `Inr` constructors:
+En général, les coproduits prennent la forme de
+`A :+: B :+: C :+: CNil` signifiant « A ou B ou C, »
+où `:+:` peut être librement interprété comme `Either`.
+Globalement, le type d'un coproduit encode tous les types
+possibles d'une disjonction, mais ces instances contiennent
+uniquement la valeur de l'une des possibilités.
+`:+:` dispose de deux sous types, `Inl` et `Inr`,
+qui correspondent vagument à `Left` et `Right`.
+On crée des instances de coproduit en 
+imbriquant des constructeurs de `Inl` et de `Inr` :
 
 ```tut:book
 val red: Light = Inl(Red())
 val green: Light = Inr(Inr(Inl(Green())))
 ```
+Chaque type de coproduit se termine par  `CNil`,
+qui est un type inhabité (sans valeur), similaire à `Nothing`.
+On ne peut donc pas instancier `CNil` ou construire un `Coproduct` uniquement 
+à partir d'instance de `Inr`.
+Il y a toujours exactement un `Inl` dans chaque valeur de coproduit.
 
-Every coproduct type is terminated with `CNil`,
-which is an empty type with no values, similar to `Nothing`.
-We can't instantiate `CNil`
-or build a `Coproduct` purely from instances of `Inr`.
-We always have exactly one `Inl` in a value.
+Encore une fois, il convient de signaler que `Coproducts` n'a rien de spécial.
+La fonctionalité du dessus peut être obtenue en utilisant `Either` et `Nothing`
+à la place de `:+:` et `CNil`.
+Utiliser `Nothing` induit des difficultés techniques,
+mais on aurait pu utiliser
+n'importe quel autre type inhabité ou type singleton à la place de `CNil`.
 
-Again, it's worth stating that `Coproducts` aren't particularly special.
-The functionality above can be achieved using `Either` and `Nothing`
-in place of `:+:` and `CNil`.
-There are technical difficulties with using `Nothing`,
-but we could have used
-any other uninhabited or arbitrary singleton type in place of `CNil`.
+### Échanger les encodages à l'aide de *Generic*
 
-### Switching encodings using *Generic*
-
-`Coproduct` types are difficult to parse on first glance.
-However, we can see how they fit
-into the larger picture of generic encodings.
-In addition to understanding case classes and case objects,
-shapeless' `Generic` type class also understands
-sealed traits and abstract classes:
+À première vue, les `Coproduct` sont difficiles à parser.
+Cependant, nous voyons comment ils s'intègrent dans le contexte 
+plus large des écritures génériques.
+En plus de comprendre les case classes et les case objects, 
+`Generic` de shapeless comprend également les traits scellés et les 
+classes abstraites :
 
 ```tut:book:silent
 import shapeless.Generic
@@ -67,11 +65,10 @@ final case class Circle(radius: Double) extends Shape
 val gen = Generic[Shape]
 ```
 
-The `Repr` of the `Generic` for `Shape` is
-a `Coproduct` of the subtypes of the sealed trait:
-`Rectangle :+: Circle :+: CNil`.
-We can use the `to` and `from` methods of the generic
-to map back and forth between `Shape` and `gen.Repr`:
+Le `Repr` du `Generic` de `Shape` est un coproduit
+des sous-types de `Shape`: `Rectangle :+: Circle :+: CNil`.
+On peut utiliser les méthodes `to` et `from` de l'instance de `Generic`
+pour convertir `Shape` en `gen.Repr` et vice versa :
 
 ```tut:book
 gen.to(Rectangle(3.0, 4.0))

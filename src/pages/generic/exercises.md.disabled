@@ -1,10 +1,10 @@
 
-### Exercise: Aligning columns in CSV output
+### Exercice : Aligner les colonnes d'une sortie CSV
 
-It would perhaps be better if we separated
-the data for rectangles and circles 
-into two separate sets of columns.
-We can do this by adding a `width` field to `CsvEncoder`:
+Il serait peut-être préférable de séparer
+les données des rectangles et des cercles 
+dans deux ensembles de colonnes séparés.
+Pour ce faire, nous pouvons ajouter un champ `width` à `CsvEncoder`:
 
 ```disabledtut:book:silent
 trait CsvEncoder[A] {
@@ -13,14 +13,14 @@ trait CsvEncoder[A] {
 }
 ```
 
-If we follow through with all of our definitions,
-we can produce instances
-that place each field in the ADT in a different column.
-We will leave this as an exercise to the reader.
+Si l'on se conforme à nos définitions,
+nous pouvons produire des instances
+qui placent chaque champ de l'ADT dans une colonne différente.
+Ceci peut constituer un exercice pour le lecteur.
 
 <div class="solution">
-We start by modifying the definition of `createEncoder`
-to accept a `width` parameter:
+Commençons par modifier la définition de `createEncoder`
+pour accepter un paramètre `width` :
 
 ```disabledtut:book:silent
 def createEncoder[A](cols: Int)(func: A => List[String]): CsvEncoder[A] =
@@ -31,7 +31,7 @@ def createEncoder[A](cols: Int)(func: A => List[String]): CsvEncoder[A] =
   }
 ```
 
-Then we modify our base encoders to each record a width of `1`:
+Nous modifions ensuite nos encodeurs de base pour que chacun garde une largeur de `1` :
 
 ```disabledtut:book:silent
 implicit val stringEncoder: CsvEncoder[String] =
@@ -47,9 +47,9 @@ implicit val doubleEncoder: CsvEncoder[Double] =
   createEncoder(1)(d => List(d.toString))
 ```
 
-Our encoders for `HNil` and `CNil` have width `0` and our
-encoders for `::` and `:+:` have a width determined by
-the encoders for their heads and tails:
+Nos encodeurs pour `HNil` et `CNil` ont une largeur de `0` et nos
+encodeurs pour `::` et `:+:` ont une largeur déterminée par
+les encodeurs pour les têtes et les queues :
 
 ```disabledtut:book:silent
 import shapeless.{HList, HNil, ::}
@@ -68,8 +68,8 @@ implicit def hlistEncoder[H, T <: HList](
   }
 ```
 
-Our `:+:` encoder pads its output with a number of columns
-equal to the width of the encoder it isn't using for serialization:
+Notre encodeur `:+:` décale la sortie avec un nombre de colonnes 
+égal à la largeur de l'encodeur qu'il n'utilise pas pour la sérialisation :
 
 ```disabledtut:book:silent
 import shapeless.{Coproduct, CNil, :+:, Inl, Inr}
@@ -90,8 +90,8 @@ implicit def coproductEncoder[H, T <: Coproduct](
   }
 ```
 
-Finally, our ADT encoder mirrors the width of
-the encoder for its generic representation:
+Enfin, notre encodeur d'ADT reflète la largeur de
+l'encodeur de sa représentation générique :
 
 ```disabledtut:book:silent
 import shapeless.Generic
@@ -106,8 +106,8 @@ implicit def genericEncoder[A, R](
   }
 ```
 
-With all these definitions in place,
-our `writeCsv` method gains the ability to align its output correctly:
+Avec toutes ces définitions,
+notre méthode `writeCsv` obtient la capacité d'aligner correctement sa sortie :
 
 ```disabledtut:book:invisible
 def writeCsv[A](values: List[A])(implicit encoder: CsvEncoder[A]): String =

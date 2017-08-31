@@ -1,10 +1,10 @@
-# Working with types and implicits {#sec:type-level-programming}
+# Travailler avec les types et les implicites {#sec:type-level-programming}
 
-In the last chapter we saw
-one of the most compelling use cases for shapeless:
-automatically deriving type class instances.
-There are plenty of even more powerful examples coming later.
-However, before we move on, we should take time
-to discuss some theory we've skipped over
-and establish a set of patterns for writing and debugging
-type- and implicit-heavy code.
+Dans le chapitre précédent, nous avons vu
+l'un des cas d'utilisation les plus fascinants de shapeless :
+la déduction automatique d'instance de case class.
+Nous allons découvrir qu'il existe plusieurs autres exemples au moins aussi saisissants.
+Cependant, avant d'en arriver là, nous devons prendre un peu de temps 
+pour traiter la théorie que nous avons évité jusqu'ici
+et établir un ensemble de patterns pour écrire et débugger du code 
+hautement implicite et hautement typé.

@@ -1,14 +1,13 @@
 ## Record ops {#sec:ops:record}
 
-We've spent some time in this chapter
-looking at type classes from the
-`shapeless.ops.hlist` and `shapeless.ops.coproduct` packages.
-We mustn't leave without mentioning a third important package:
-`shapeless.ops.record`.
+Nous avons passé un certain temps dans ce chapitre
+à travailler avec les type classes du package
+`shapeless.ops.hlist` et `shapeless.ops.coproduct`.
+Nous ne devons pas passer à côté du troisième package :`shapeless.ops.record`.
 
-Shapeless' "record ops" provide `Map`-like
-operations on `HLists` of tagged elements.
-Here are a handful of examples involving ice creams:
+« Record ops » de shapeless fournissent des opérations semblables à celles des `Map`
+sur les `HLists` d'éléments taggés.
+Voici quelques exemples mettant en scène IceCreams :
 
 ```tut:book:silent
 import shapeless._
@@ -21,18 +20,17 @@ val sundae = LabelledGeneric[IceCream].
   to(IceCream("Sundae", 1, false))
 ```
 
-Unlike the `HList` and `Coproduct` ops we have seen already,
-record ops syntax requires an explicit import from `shapeless.record`:
+Contrairement aux ops de `HList` et de `Coproduct` que nous avons vus précédemment
+la syntaxe des record ops nécessite un import explicite de `shapeless.record` :
 
 ```tut:book:silent
 import shapeless.record._
 ```
 
-### Selecting fields
+### Sélectionner les champs
 
-The `get` extension method
-and its corresponding `Selector` type class
-allow us to fetch a field by tag:
+La méthode d'extension `get` et sa type classe `Selector`
+nous permettent d'extraire un champ par son tag :
 
 ```tut:book
 sundae.get('name)
@@ -42,17 +40,17 @@ sundae.get('name)
 sundae.get('numCherries)
 ```
 
-Attempting to access an undefined field
-causes a compile error as we might expect:
+Comme nous nous y attendions, essayer d'accéder à un champ qui n'est pas défini
+provoque une erreur de compilation :
 
 ```tut:book:fail
 sundae.get('nomCherries)
 ```
 
-### Updating and removing fields
+### Mettre à jour ou enlever des champs
 
-The `updated` method and `Updater` type class allow us to modify fields by key.
-The `remove` method and `Remover` type class allow us to delete fields by key:
+La méthode `updated` ce type class `Updater` nous permet de modifier un champ via sa clé.
+La méthode `remove` ce type class `Remover` nous permet de supprimer un champ via sa clé :
 
 ```tut:book
 sundae.updated('numCherries, 3)
@@ -62,25 +60,24 @@ sundae.updated('numCherries, 3)
 sundae.remove('inCone)
 ```
 
-The `updateWith` method and `Modifier` type class allow us
-to modify a field with an update function:
+La méthode `updateWith` et sa case class `Modifier` nous permettent de modifier un champ
+avec une fonction de mise à jour :
 
 ```tut:book
 sundae.updateWith('name)("MASSIVE " + _)
 ```
 
-### Converting to a regular *Map*
+### Convertir en une *Map* conventionnelle
 
-The `toMap` method and `ToMap` type class
-allow us to convert a record to a `Map`:
+La méthode `toMap` et sa case class `ToMap`
+nous permettent de convertir un record en `Map` :
 
 ```tut:book
 sundae.toMap
 ```
 
-### Other operations
+### Les autres opérations
 
-There are other record ops that we don't have room to cover here.
-We can rename fields, merge records, map over their values, and much more.
-See the source code of `shapeless.ops.record` and `shapeless.syntax.record`
-for more information.
+Il existe d'autres ops pour les records mais nous n'avons pas le temps de les aborder ici.
+Nous pouvons renommer un champ, fusionner deux records, utiliser une fonction map sur leurs valeurs et bien plus.
+Consultez le code source de `shapeless.ops.record` et `shapeless.syntax.record` pour de plus amples informations.

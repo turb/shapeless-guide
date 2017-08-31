@@ -1,13 +1,12 @@
-## Dependently typed functions {#sec:type-level-programming:depfun}
+## Fonctions à type dépendant {#sec:type-level-programming:depfun}
 
-Shapeless uses dependent types all over the place:
-in `Generic`, in `Witness` (which we will see in the next chapter),
-and in a host of other "ops" type classes
-that we will survey in Part II of this guide.
-
-For example, shapeless provides a type class called `Last`
-that returns the last element in an `HList`.
-Here's a simplified version of its definition:
+Shapeless utilise les types dépendants partout :
+dans `Generic`, dans `Witness` (que nous traiterons dans le chapitre suivant),
+et dans de nombreux type classes « ops » que 
+nous traiterons dans la Partie II de ce guide.
+Par exemple, shapeless fournit une case class appelée `Last`
+qui retourne le dernier élément d'une `HList`.
+Voici une version simplifiée de son implémentation :
 
 ```scala
 package shapeless.ops.hlist
@@ -18,11 +17,10 @@ trait Last[L <: HList] {
 }
 ```
 
-We can summon instances of `Last`
-to inspect `HLists` in our code.
-In the two examples below note that
-the `Out` types are dependent on
-the `HList` types we started with:
+On peut invoquer des instances de `Last`
+pour inspecter les `HLists` dans notre code.
+Notez que dans les deux exemples ci-dessous
+les types de `Out` sont dépendants des types des `HList` :
 
 ```tut:book:silent
 import shapeless.{HList, ::, HNil}
@@ -34,36 +32,35 @@ import shapeless.ops.hlist.Last
 val last1 = Last[String :: Int :: HNil]
 val last2 = Last[Int :: String :: HNil]
 ```
-
-Once we have summoned instances of `Last`,
-we can use them at the value level
-via their `apply` methods:
+Une fois les instances de `Last` invoquées,
+et on peut les utiliser au value level
+via leurs méthodes `apply` :
 
 ```tut:book
 last1("foo" :: 123 :: HNil)
 last2(321 :: "bar" :: HNil)
 ```
 
-We get two forms of protection against errors.
-The implicits defined for `Last` ensure
-we can only summon instances if
-the input `HList` has at least one element:
+Nous avons deux formes de protection contre les erreurs.
+L'implicite définie pour `Last` nous garantit que 
+l'on peut construire une instance de `Last` uniquement si 
+la `HList` en entrée est dotée d'au moins un élément :
 
 ```tut:book:fail
 Last[HNil]
 ```
 
-In addition, the type parameters
-on the instances of `Last` check
-whether we pass in the expected type of `HList`:
+De plus, le paramètre de type de l'instance de `Last`
+vérifie qu'on lui passe bien
+une instance de `HList` du bon type :
 
 ```tut:book:fail
 last1(321 :: "bar" :: HNil)
 ```
 
-As a further example, let's implement
-our own type class, called `Second`,
-that returns the second element in an `HList`:
+Pour faire un autre exemple, implémentons notre propre
+type classe, appelé `Second`,
+qui retourne le second élément d'une `HList` :
 
 ```tut:book:silent
 trait Second[L <: HList] {
@@ -79,40 +76,41 @@ object Second {
 }
 ```
 
-This code uses the idiomatic layout
-described in Section [@sec:generic:idiomatic-style].
-We define the `Aux` type in the companion object beside
-the standard `apply` method for summoning instances.
+Ce code utilise l'agencement idiomatique 
+décrit dans la Section [@sec:generic:idiomatic-style].
+On définit un type `Aux` dans l'objet compagnon aux cotés de la 
+méthode standard `apply`, qui permet d'invoquer des instances.
 
 <div class="callout callout-warning">
-*Summoner methods versus "implicitly" versus "the"*
+*Méthode d'invocation versus "implicitly" versus "the"*
 
-Note that the return type on `apply` is `Aux[L, O]`, not `Second[L]`.
-This is important.
-Using `Aux` ensures the `apply` method
-does not erase the type members on summoned instances.
-If we define the return type as `Second[L]`,
-the `Out` type member will be erased from the return type
-and the type class will not work correctly.
+Remarquez que le type de retour d'`apply` est `Aux[L, O]` et non pas `Second[L]`.
+C'est important.
+Utiliser `Aux` assure que la methode `apply` 
+n'écrase pas les membres de type de l'instance invoquée.
+Si l'on définit `Second[L]` comme type de retour,
+le membre de type `Out` sera perdu dans le type retourné et 
+la type class ne fonctionnera plus correctement.
 
-The `implicitly` method from `scala.Predef` has this behaviour.
-Compare the type of an instance of `Last` summoned with `implicitly`:
+La méthode `implicitly` de `scala.Predef` est dotée de cette propriété.
+Comparons le type d'une instance de `Last` invoqué par `implicitly` :
+
 
 ```tut:book
 implicitly[Last[String :: Int :: HNil]]
 ```
 
-to the type of an instance summoned with `Last.apply`:
+au type retourné par  `Last.apply` :
 
 ```tut:book
 Last[String :: Int :: HNil]
 ```
 
-The type summoned by `implicitly` has no `Out` type member.
-For this reason, we should avoid `implicitly`
-when working with dependently typed functions.
-We can either use custom summoner methods,
-or we can use shapeless' replacement method, `the`:
+Le type invoqué par `implicitly` n'a pas de membre de type `Out`.
+C'est pourquoi on doit éviter d'utiliser `implicitly`
+lorsque l'on travaille avec des fonctions à type dépendant.
+On peut utiliser une méthode d'invocation custom ou directement
+la méthode `the` de shapeless :
 
 ```tut:book:silent
 import shapeless._
@@ -123,8 +121,9 @@ the[Last[String :: Int :: HNil]]
 ```
 </div>
 
-We only need a single instance,
-defined for `HLists` of at least two elements:
+Nous n'avons besoin que d'une seule instance 
+définie pour une `HLists` d'au moins deux éléments :
+
 
 ```tut:book:invisible
 import Second._
@@ -139,7 +138,7 @@ implicit def hlistSecond[A, B, Rest <: HList]: Aux[A :: B :: Rest, B] =
   }
 ```
 
-We can summon instances using `Second.apply`:
+On peut invoquer les instances en utilisant `Second.apply` :
 
 ```tut:book:invisible
 import Second._
@@ -150,16 +149,16 @@ val second1 = Second[String :: Boolean :: Int :: HNil]
 val second2 = Second[String :: Int :: Boolean :: HNil]
 ```
 
-Summoning is subject to similar constraints as `Last`.
-If we try to summon an instance for an incompatible `HList`,
-resolution fails and we get a compile error:
+L'invocation est sujette aux mêmes contraintes que `Last`.
+Si l'on essaie d'invoquer une instance pour une `HList` incompatible,
+alors la résolution échoue et l'on obtient une erreur de compilation :
+
 
 ```tut:book:fail
 Second[String :: HNil]
 ```
-
-Summoned instances come with an `apply` method
-that operates on the relevant type of `HList` at the value level:
+Les instances invoquées avec la méthode `apply` fonctionne 
+avec les types de `HList` appropriés au niveau des valeurs (value level)
 
 ```tut:book
 second1("foo" :: true :: 123 :: HNil)
@@ -170,17 +169,16 @@ second2("bar" :: 321 :: false :: HNil)
 second1("baz" :: HNil)
 ```
 
-## Chaining dependent functions {#sec:type-level-programming:chaining}
+## Enchaîner les fonctions dépendantes {#sec:type-level-programming:chaining}
+Les fonctions à type dépendant offrent un 
+moyen de calculer un type à partir d'un autre.
+On peut enchaîner les fonctions à type dépendant 
+pour effectuer un calcul nécessitant plusieurs étapes.
+Par exemple, on pourrait utiliser `Generic` pour calculer 
+le `Repr` d'une case classe et utiliser `Last` 
+pour calculer le type du dernier élément.
+Essayons de coder ceci :
 
-Dependently typed functions provide
-a means of calculating one type from another.
-We can *chain* dependently typed functions
-to perform calculations involving multiple steps.
-For example, we should be able to use a `Generic`
-to calculate a `Repr` for a case class,
-and use a `Last` to calculate
-the type of the last element.
-Let's try coding this:
 
 ```tut:book:invisible
 import shapeless.Generic
@@ -194,12 +192,11 @@ def lastField[A](input: A)(
 ): last.Out = last.apply(gen.to(input))
 ```
 
-Unfortunately our code doesn't compile.
-This is the same problem we had
-in Section [@sec:generic:product-generic]
-with our definition of `genericEncoder`.
-We worked around the problem by lifting
-the free type variable out as a type parameter:
+Malheureusement, notre code ne compile pas.
+Il s'agit du même problème que nous avions rencontré dans la Section [@sec:generic:product-generic] 
+avec notre définition de `genericEncoder`.
+Nous avions contourné le problème en remontant la variable 
+de type non-parametré dans la liste des paramètres de types :
 
 ```tut:book:silent
 def lastField[A, Repr <: HList](input: A)(
@@ -218,16 +215,13 @@ case class Rect(origin: Vec, extent: Vec)
 lastField(Rect(Vec(1, 2), Vec(3, 4)))
 ```
 
-As a general rule,
-we always write code in this style.
-By encoding all the free variables as type parameters,
-we enable the compiler to
-unify them with appropriate types.
-This goes for more subtle constraints as well.
-For example, suppose we wanted
-to summon a `Generic` for
-a case class of exactly one field.
-We might be tempted to write this:
+En règle général, on écrit toujours du code dans ce style.
+En paramétrant toutes les variables de type, on permet au compilateur 
+de les unifier avec les types appropriés.
+Cela vaut également pour des contraintes plus subtiles.
+Par exemple, imaginons qu'on veuille invoquer un `Generic` pour une case class 
+qui porte exactement un champ.
+On pourrait être tenté d'écrire le code suivant :
 
 ```tut:book:silent
 def getWrappedValue[A, H](input: A)(
@@ -236,10 +230,10 @@ def getWrappedValue[A, H](input: A)(
 ): H = gen.to(input).head
 ```
 
-The result here is more insidious.
-The method definition compiles but
-the compiler can never
-find implicits at the call site:
+Le résultat est plus pernicieux.
+La définition de la méthode compilera 
+mais le compilateur ne trouvera jamais 
+d'implicits au moment de l'appel :
 
 ```tut:book:silent
 case class Wrapper(value: Int)
@@ -249,26 +243,24 @@ case class Wrapper(value: Int)
 getWrappedValue(Wrapper(42))
 ```
 
-The error message hints at the problem.
-The clue is in the appearance of the type `H`.
-This is the name of a type parameter in the method:
-it shouldn't be appearing
-in the type the compiler is trying to unify.
-The problem is that the `gen` parameter is over-constrained:
-the compiler can't find a `Repr`
-*and* ensure its length at the same time.
-The type `Nothing` also often provides a clue,
-appearing when the compiler
-fails to unify covariant type parameters.
+Le message d'erreur fait allusion au problème.
+L'apparition du type `H` est en fait notre indice.
+C'est le nom d'un des paramètres de type de la méthode, 
+il ne devrait pas apparaître 
+dans le type que le compilateur tente d'unifier.
+Le problème tient au fait que le paramètre `gen` est sur-contraint :*
+le compilateur ne peut pas trouver `Repr` *et* garantir sa taille en même temps.
+Le type `Nothing` peut aussi fournir un indice,
+il apparaît quand le compilateur ne parvient pas
+à unifier les paramètres de types covariants.
+La solution au problème ci-dessus est de diviser la résolution d'implicite en plusieurs étapes :
 
-The solution to our problem above
-is to separate implicit resolution into steps:
+1. trouver un `Generic` avec un `Repr` approprié pour `A` ;
+2. s'assurer que `Repr` a un élément en tête de type `H`.
 
-1. find a `Generic` with a suitable `Repr` for `A`;
-2. provide that the `Repr` has a head type `H`.
+Voici une version revisitée de la méthode 
+utilisant `=:=` pour contraindre `Repr`:
 
-Here's a revised version of the method
-using `=:=` to constrain `Repr`:
 
 ```tut:book:fail
 def getWrappedValue[A, Repr <: HList, Head, Tail <: HList](input: A)(
@@ -278,14 +270,13 @@ def getWrappedValue[A, Repr <: HList, Head, Tail <: HList](input: A)(
 ): Head = gen.to(input).head
 ```
 
-This doesn't compile
-because the `head` method in the method body
-requires an implicit parameter of type `IsHCons`.
-This is a much simpler error message to fix---we
-just need to learn a tool from shapeless' toolbox.
-`IsHCons` is a shapeless type class
-that splits an `HList` into a `Head` and `Tail`.
-We can use `IsHCons` instead of `=:=`:
+Ça ne compile pas
+car la methode `head` dans le corps de la methode getWrappedValue
+nécessite un paramètre implicite de type `IsHCons`.
+Ce sont des messages d'erreur beaucoup plus simples à corriger,
+il nous suffit d'apprendre à utiliser un outil de la toolbox de shapeless.
+`IsHCons` est une type classe de shapeless qui coupe une `HList` en une `Head` et une `Tail`.
+On peut utiliser `IsHCons` en lieu est place de  `=:=` :
 
 ```tut:book:silent
 import shapeless.ops.hlist.IsHCons
@@ -297,24 +288,23 @@ def getWrappedValue[A, Repr <: HList, Head](in: A)(
 ): Head = gen.to(in).head
 ```
 
-This fixes the bug.
-Both the method definition
-and the call site now compile as expected:
+Ça corrige le bug.
+Maintenant la definition de la méthode et 
+l'appel de la méthode compile correctement :
+
 
 ```tut:book
 getWrappedValue(Wrapper(42))
 ```
-
-The take home point here isn't
-that we solved the problem using `IsHCons`.
-Shapeless provides a lot of tools like this
-(see Chapters [@sec:ops] to [@sec:nat]),
-and we can supplement them where necessary
-with our own type classes.
-The important point is
-to understand the process we use
-to write code that compiles
-and is capable of finding solutions.
-We'll finish off this section
-with a step-by-step guide
-summarising our findings so far.
+Le point important n'est pas que 
+l'on a résolu le problème en utilisant `IsHCons`.
+Shapeless fournit de nombreux outils comme celui-ci 
+(voir Chapitre [@sec:ops] à [@sec:nat]),
+et on peut les compléter si nécessaire
+avec nos propres type classes.
+Le point important est la compréhension du processus 
+que l'on utilise pour parvenir à ecrire un code qui compile 
+et la capacité de trouver les solutions
+Cette section se conclue par un 
+guide pas à pas qui résume 
+ce que nous avons découvert jusqu'ici.

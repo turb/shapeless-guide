@@ -1,16 +1,8 @@
-# Accessing names during implicit derivation {#sec:labelled-generic}
+# Accéder aux noms durant la déduction d'implicit {#sec:labelled-generic}
 
-Often, the type class instances we define
-need access to more than just types.
-In this chapter we will look at 
-a variant of `Generic` called `LabelledGeneric`
-that gives us access to field names and type names.
+Souvent, les instances de types classes que l'on définit ont besoin d'accéder à plus de choses que les types uniquement.
+Dans ce chapitre nous découvririons une variante de `Generic` appelée `LabelledGeneric` qui donne accès aux noms des champs et aux noms des types.
 
-To begin with we have some theory to cover.
-`LabelledGeneric` uses some clever techniques
-to expose name information at the type level.
-To understand these techniques 
-we must discuss *literal types*, 
-*singleton types*,
-*phantom types*, 
-and *type tagging*.
+Pour commencer, abordons un peu la théorie.
+`LabelledGeneric` emploie des techniques astucieuses pour exposer les informations sur les noms au niveau des types.
+Pour comprendre ces techniques, nous devons traiter les *types littéraux*, *types singleton*, *types fantômes* et le *type tagging*.

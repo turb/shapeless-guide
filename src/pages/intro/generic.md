@@ -1,14 +1,14 @@
-## What is generic programming?
+## La programation générique, qu'est-ce que c'est ?
 
-Types are helpful because they are specific:
-they show us how different pieces of code fit together,
-help us prevent bugs,
-and guide us toward solutions when we code.
+Les types sont utiles car ils sont spécifiques :
+ils nous aident a comprendre comment les différents morceaux de code
+s'imbriquent les uns aux autres, ils nous aident à éviter les bugs
+et nous conduisent vers une solution lorsque l'on code.
 
-Sometimes, however, types are *too* specific.
-There are situations where we want
-to exploit similarities between types to avoid repetition.
-For example, consider the following definitions:
+Pourtant, parfois, les types sont *trop* spécifiques.
+Il y a des situations où l'on veut pouvoir profiter des similarités 
+entres les types pour eviter les répétitions.
+Prenons les définitions suivantes comme exemple :
 
 ```tut:book:silent
 case class Employee(name: String, number: Int, manager: Boolean)
@@ -16,13 +16,13 @@ case class Employee(name: String, number: Int, manager: Boolean)
 case class IceCream(name: String, numCherries: Int, inCone: Boolean)
 ```
 
-These two case classes represent different kinds of data
-but they have clear similarities:
-they both contain three fields of the same types.
-Suppose we want to implement a generic operation
-such as serializing to a CSV file.
-Despite the similarity between the two types,
-we have to write two separate serialization methods:
+Ces deux case classes représentent des données différentes
+mais elles on des points communs évidents :
+elles possèdent toutes deux des champs du même type.
+Supposons que nous voulons implémenter une opération générique, 
+par exemple les sérialiser en un fichier CSV.
+En dépit des similarités, nous devons écrire
+une méthode de sérialisation pour chaque type :
 
 ```tut:book:silent
 def employeeCsv(e: Employee): List[String] =
@@ -32,14 +32,16 @@ def iceCreamCsv(c: IceCream): List[String] =
   List(c.name, c.numCherries.toString, c.inCone.toString)
 ```
 
-Generic programming is about overcoming differences like these.
-Shapeless makes it convenient to convert specific types
-into generic ones that we can manipulate with common code.
+La programation générique consiste à venir à bout de ce genre de différences.
+Shapeless met a disposition un moyen pratique de convertir des types
+spécifiques en une représentation générique, qui sont ensuite 
+manipulables avec un code commun.
 
-For example, we can use the code below to
-convert employees and ice creams to values of the same type.
-Don't worry if you don't follow this example yet---we'll
-get to grips with the various concepts later on:
+Par exemple, nous pouvons utiliser le code suivant
+pour convertir les `employees` et les `ice creams` 
+en valeurs du même type.
+Ne vous inquiétez pas si vous ne comprenez pas encore cet exemple,
+ce sujet sera traité plus tard.
 
 ```tut:book:silent
 import shapeless._
@@ -50,12 +52,12 @@ val genericEmployee = Generic[Employee].to(Employee("Dave", 123, false))
 val genericIceCream = Generic[IceCream].to(IceCream("Sundae", 1, false))
 ```
 
-Both values are now of the same type.
-They are both heterogeneous lists (`HLists` for short)
-containing a `String`, an `Int`, and a `Boolean`.
-We'll look at `HLists` and the important role they play soon.
-For now the point is that we can serialize each value
-with the same function:
+Les deux valeurs sont maintenant du même type.
+Elle sont toutes les deux des liste hétérogène (aka `HLists`)
+contenant une `String`, un `Int`, et un `Boolean`.
+Nous jetterons bientôt un œil au `Hlists` et à l'importance de leur rôle.
+Pour l'instant, le plus intéressant est que nous pouvons 
+sérialiser chaque valeur avec une seule fonction.
 
 ```tut:book:silent
 def genericCsv(gen: String :: Int :: Boolean :: HNil): List[String] =
@@ -66,13 +68,13 @@ def genericCsv(gen: String :: Int :: Boolean :: HNil): List[String] =
 genericCsv(genericEmployee)
 genericCsv(genericIceCream)
 ```
+Cet exemple est basique mais il pointe du doigt
+la nature de la programation générique.
+Nous reformulons les problèmes pour pouvoir les résoudre 
+avec des constructions génériques et ainsi écrire de petit bloc de code
+qui fonctionnent avec une large variété de types.
+Programmer avec shapeless nous permet d'éliminer une grande quantité de
+`boilerplate`, de rendre les applications scala plus faciles à lire, écrire
+et entretenir.
 
-This example is basic
-but it hints at the essence of generic programming.
-We reformulate problems so we can solve them using generic building blocks,
-and write small kernels of code that work with a wide variety of types.
-Generic programming with shapeless
-allows us to eliminate huge amounts of boilerplate,
-making Scala applications easier to read, write, and maintain.
-
-Does that sound compelling? Thought so. Let's jump in!
+Votre curiosité a été piquée ? Alors c'est parti !

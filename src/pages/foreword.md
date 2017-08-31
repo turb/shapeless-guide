@@ -1,36 +1,40 @@
-# Foreword {-}
+# Avant-propos {-}
 
-Back at the beginning of 2011, when I first started doing the
-experiments in generic programming that would eventually turn into
-shapeless, I had no idea that five years later it would have evolved
-into such a widely used library. I am profoundly grateful to the
-people who have trusted me and added shapeless as a dependency to
-their own projects: the vote of confidence that this represents is a
-huge motivator for any open source project. I am also hugely grateful
-to the many people who have contributed to shapeless over the years:
-eighty one at the time of writing. Without their help shapeless would
-be a far less interesting and useful library.
+Retour en début 2011, alors que je commençais à réaliser
+des expériences de programmation générique qui deviendront plus tard shapeless.
+Jamais je n'aurais pensé que cinq ans plus tard, shapeless deviendrait
+une librairie tant utilisée. Je suis profondément reconnaissant
+envers les personnes qui on cru en moi et qui ont ajouté shapeless à leurs dépendances.
+Le vote de confiance que cela représente apporte un véritable coup de boost 
+à tous les projets opensource.
+Je suis aussi reconnaissant envers les nombreuses personnes 
+qui ont contribué à shapeless au fil des années, 
+quatre-vingt-une au moment où j'écris ces lignes.
+Sans leur aide, shapeless serait une librairie bien moins intéressante.
 
-These positives notwithstanding, shapeless has suffered from one of
-the common failings of open source projects: a lack of comprehensive,
-accurate and accessible documentation. The responsibility for this
-lies squarely at my door: despite acknowledging the lack I have never
-been able to find the time to do anything about it. To some extent
-shapeless has been saved from this by Travis Brown's heroic Stack
-Overflow performance and also by the many people who have given talks
-about and run workshops on shapeless (in particular I'd like to
-highlight Sam Halliday's "Shapeless for Mortals" workshop).
+Malgré ces points positifs, shapeless a souffert d'une carence qui caractérise
+les projets open source : le manque de documentation compréhensible, 
+juste et accessible. La reponsabilité me revient en partie :
+bien que conscient de ce problème, je n'ai jamais trouvé le 
+temps d'y remédier.
+shapeless a été sauvé dans une certaine mesure par la performance
+héroïque de Travis Brown sur stack Overflow ainsi que par de nombreuses
+personnes qui ont organisé des talks et des workshops sur shapeless 
+(je voudrais remercier tout particulierement Sam Halliday pour son workshop 
+« Shapeless for Mortals »).
 
-But Dave Gurnell has changed all that: we now have this wonderful book
-length treatment of shapeless's most important application: type class
-derivation via generic programming. In doing this he has pulled
-together fragments of folklore and documentation, has picked my brain,
-and turned the impenetrable tangle into something which is clear,
-concise and very practical. With any luck he will be able to make good
-on my regular claims that at its core shapeless is a very simple
-library embodying a set of very simple concepts.
+Mais Dave Gurnell est parvenu à changer tout ça : nous avons maintenant ce
+merveilleux livre qui traite de manière aprofondie la partie la plus
+importante de shapeless :
+la déduction de type class par la programmation générique.
+Il a regroupé des fragments de folklore et de documentation,
+il m'a poussé à la réflexion,
+et il a transformé cet enchevêtrement impénétrable en quelque-chose de clair,
+concis et tres concret. Avec un peu de chance, il sera capable
+de confirmer mon affirmation selon laquelle le cœur de shapeless est 
+une librairie très simple qui incarne un ensemble de concepts tout aussi simples.
 
-Thanks Dave, you've done us all a great service.
+Merci Dave, tu nous rends à tous un grand service.
 
 Miles Sabin\
-Creator of shapeless
+Créateur de shapeless

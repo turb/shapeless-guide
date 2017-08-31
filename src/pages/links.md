@@ -16,7 +16,7 @@
 [code-ops-coproduct-length]: https://github.com/milessabin/shapeless/blob/shapeless-2.3.2/core/src/main/scala/shapeless/ops/coproduct.scala#L516-L541
 [code-syntax-hlist-init-last]: https://github.com/milessabin/shapeless/blob/shapeless-2.3.2/core/src/main/scala/shapeless/syntax/hlists.scala#L103-L112
 
-<!-- Libraries -->
+<!-- Bibliothèques -->
 
 [link-argonaut]: https://argonaut.io
 [link-circe]: https://github.com/travisbrown/circe
@@ -36,7 +36,7 @@
 [link-tut]: https://github.com/tpolecat/tut
 [link-witness]: https://en.wikipedia.org/wiki/Witness_(mathematics)
 
-<!-- Papers and articles -->
+<!-- Articles -->
 
 [link-folone-scalax-2014]: https://skillsmatter.com/skillscasts/5946-42-rise-of-the-dependent-types
 [link-fommil-scalax-2015]: https://github.com/fommil/shapeless-for-mortals
@@ -46,12 +46,11 @@
 [link-travisbrown-generic-type-class-derivation]: https://meta.plasm.us/posts/2015/11/08/type-classes-and-generic-derivation
 [link-travisbrown-incomplete-generic-type-class-derivation]: https://meta.plasm.us/posts/2015/06/21/deriving-incomplete-type-class-instances
 [link-travisbrown-type-level-checksum]: https://meta.plasm.us/posts/2013/06/09/learning-shapeless
-[link-dallaway-twenty-two]: http://underscore.io/blog/posts/2016/10/11/twenty-two.html
 
 [link-typelevel-scala-singleton-type-literals]: https://github.com/typelevel/scala#typelevel-scala-2118
 [link-lightbend-scala-singleton-type-literals]: https://github.com/scala/scala/pull/5310
 [link-si7046]: https://issues.scala-lang.org/browse/SI-7046
 
-<!-- Other -->
+<!-- Autres -->
 
 [link-underscore]: https://underscore.io

@@ -1,44 +1,46 @@
-# Functional operations on *HLists* {#sec:poly}
+# Opération fonctionnelle sur les *HLists* {#sec:poly}
 
-"Regular" Scala programs make heavy use
-of functional operations like `map` and `flatMap`.
-A question arises: can we perform similar operations on `HLists`?
-The answer is "yes", although
-we have to do things a little differently than in regular Scala.
-Unsurprisingly the mechanisms we use are type class based
-and there are a suite of ops type classes to help us out.
+Les programmes Scala « classiques » utilisent beaucoup
+les opérations fonctionnelles
+telles que `map` et `flatMap`.
+Une question se pose : peut-on effectuer
+des opérations semblables sur les HLists` ?
+Les réponse est oui, mais nous devons faire les choses
+légèrement différemment par rapport au Scala classique.
+Nous ne serons pas surpris de constater que le mécanisme utilisé reste basé
+sur les type classes et un ensemble de type classes ops pour nous aider.
 
-Before we delve in to the type classes themselves,
-we need to discuss how shapeless represents
-*polymorphic functions* suitable for
-mapping over heterogeneous data structures.
+Avant de nous péncher directement sur les type classes,
+nous devons aborder la façon dont shapeless représente les
+*fonctions polymorphiques* qui seront capables
+de mapper sur une structure de données hétérogènes.
 
-## Motivation: mapping over an *HList*
+## Motivation : mapper sur une *HList*
 
-We'll motivate the discussion of polymorphic functions
-by looking at the `map` method.
-Figure [@fig:poly:monomorphic-map] shows
-a type chart for mapping over a regular list.
-We start with a `List[A]`, supply a function `A => B`,
-and end up with a `List[B]`.
+Nous allons traiter les fonctions polymorphiques
+à l'aide de la méthode `.map`
+La Figure [@fig:poly:monomorphic-map] montre un diagramme des types
+d'une fonction map classique sur les listes.
+Nous commençons avec une `List[A]`,
+nous fournissons une fonction `A => B`,
+et nous terminons par `List[B]`.
 
-![Mapping over a regular list ("monomorphic" map)](src/pages/poly/monomorphic-map.pdf+svg){#fig:poly:monomorphic-map}
+![Mapper sur une liste classique ("monomorphic" map)](src/pages/poly/monomorphic-map.pdf+svg){#fig:poly:monomorphic-map}
 
-The heterogeneous element types in an `HList`
-cause this model to break down.
-Scala functions have fixed input and output types,
-so the result of our map will have to have
-the same element type in every position.
+Le fait qu'il y ait des éléments hétérogènes dans une `HList`
+met ce modèle à mal.
+Les fonctions Scala ont des types d'entrée et de sortie fixés,
+le résultat de notre map devra donc avoir
+le même type pour toutes les positions.
 
-Ideally we'd like a `map` operation like
-the one shown in Figure [@fig:poly:polymorphic-map],
-where the function inspects the type of each input
-and uses it to determine the type of each output.
-This gives us a closed, composable transformation
-that retains the heterogeneous nature of the `HList`.
+Dans l'idéal, nous voulons que notre fonction `map` corresponde à
+la Figure [@fig:poly:polymorphic-map], où la fonction inspecte
+le type de chaque entrée pour déterminer le type de chaque sortie.
+Ce qui nous donne un environement clos et
+composable qui conserve la nature hétérogène
+des `HList`.
 
-![Mapping over a heterogeneous list ("polymorphic" map)](src/pages/poly/polymorphic-map.pdf+svg){#fig:poly:polymorphic-map}
+![mapper sur des listes hétérogènes ("polymorphic" map)](src/pages/poly/polymorphic-map.pdf+svg){#fig:poly:polymorphic-map}
 
-Unfortunately we can't use Scala functions
-to implement this kind of operation.
-We need some new infrastructure.
+Malheureusement nous ne pouvons pas utiliser les fonctions scala pour implémenter
+ces opérations. Nous avons besoin d'une nouvelle infrastructure.

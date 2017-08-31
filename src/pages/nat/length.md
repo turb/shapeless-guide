@@ -1,10 +1,9 @@
-## Length of generic representations
+## La longueur des représentations génériques
 
-One use case for `Nat` is
-determining the lengths of `HLists` and `Coproducts`.
-Shapeless provides the
-`shapeless.ops.hlist.Length` and
-`shapeless.ops.coproduct.Length` type classes for this:
+Un des cas d'utilisation de `Nat`consiste à déterminer la taille
+des `HLists` et des `Coproducts`.
+Shapeless fournit les type classes `shapeless.ops.hlist.Length` et
+`shapeless.ops.coproduct.Length` pour cela :
 
 ```tut:book:silent
 import shapeless._
@@ -16,18 +15,17 @@ val hlistLength = hlist.Length[String :: Int :: Boolean :: HNil]
 val coproductLength = coproduct.Length[Double :+: Char :+: CNil]
 ```
 
-Instances of `Length` have a type member `Out`
-that represents the length as a `Nat`:
+Les instances de `Length` ont un membre de type `Out` qui représente la taille avec un `Nat` :
 
 ```tut:book
 Nat.toInt[hlistLength.Out]
 Nat.toInt[coproductLength.Out]
 ```
 
-Let's use this in a concrete example.
-We'll create a `SizeOf` type class that
-counts the number of fields in a case class
-and exposes it as a simple `Int`:
+Utilisons un exemple concret.
+Nous allons créer une type class `SizeOf` qui
+compte le nombre de champs d'une case class et 
+retourne cette valeur comme un simple `Int` :
 
 ```tut:book:silent
 trait SizeOf[A] {
@@ -37,14 +35,13 @@ trait SizeOf[A] {
 def sizeOf[A](implicit size: SizeOf[A]): Int = size.value
 ```
 
-To create an instance of `SizeOf` we need three things:
+Pour créer une instance de `SizeOf`, nous avons besoin de trois choses :
 
-1. a `Generic` to calculate the corresponding `HList` type;
-2. a `Length` to calculate the length of the `HList` as a `Nat`;
-3. a `ToInt` to convert the `Nat` to an `Int`.
+1. un `Generic` pour calculer la `HList` correspondant au type ;
+2. une `Length` pour calculer la taille de la `HList` pour obtenir un `Nat` ;
+3. un `ToInt` pour convertir le `Nat` en `Int`.
 
-Here's a working implementation
-written in the style described in Chapter [@sec:type-level-programming]:
+Voici une implémentation qui marche, elle est écrite comme décrit dans le Chapitre [@sec:type-level-programming] :
 
 ```tut:book:silent
 implicit def genericSizeOf[A, L <: HList, N <: Nat](
@@ -58,7 +55,7 @@ implicit def genericSizeOf[A, L <: HList, N <: Nat](
   }
 ```
 
-We can test our code as follows:
+Nous pouvons tester notre code de la façon suivante :
 
 ```tut:book:silent
 case class IceCream(name: String, numCherries: Int, inCone: Boolean)

@@ -1,10 +1,10 @@
-## Defining type classes using *Poly* {#sec:poly:product-mapper}
+## Définir une type classe utilisant *Poly* {#sec:poly:product-mapper}
 
-We can use `Poly` and type classes
-like `Mapper` and `FlatMapper`
-as building blocks for our own type classes.
-As an example let's build a type class
-for mapping from one case class to another:
+Nous pouvons utiliser `Poly` et les type classes
+en tant que `Mapper` et un `FlatMapper` comme
+brique d'assemblage pour nos propres type classes.
+Comme exemple, construisons une type classe
+pour transformer une case classe en une autre :
 
 ```tut:book:silent
 trait ProductMapper[A, B, P] {
@@ -12,8 +12,8 @@ trait ProductMapper[A, B, P] {
 }
 ```
 
-We can create an instance of `ProductMapper`
-using `Mapper` and a pair of `Generics`:
+Nous pouvons créer une instance de `ProductMapper`
+en utilisant `Mapper` et une paire de `Generics` :
 
 ```tut:book:silent
 import shapeless._
@@ -36,18 +36,16 @@ implicit def genericProductMapper[
   }
 ```
 
-Interestingly, although we define a type `P` for our `Poly`,
-we don't reference any values of type `P` anywhere in our code.
-The `Mapper` type class uses implicit resolution to find `Cases`,
-so the compiler only needs to know the singleton type of `P`
-to locate the relevant instances.
+Il est intéressant de noter que nous définissons un type `P`
+pour notre `Poly`, mais nous ne faisons aucune référence à `P` dans notre code.
+La type class  `Mapper` utilise la résolution implicite pour trouver nos `Cases`,
+le compilateur n'a donc besoin que de connaître le type singleton de `P`
+pour retrouver les instances.
 
-Let's create an extension method
-to make `ProductMapper` easier to use.
-We only want the user to specify the type of `B` at the call site,
-so we use some indirection
-to allow the compiler to infer the type of the `Poly`
-from a value parameter:
+Créons une méthode d'extension pour simplifier l'utilisation de `ProductMapper`.
+Nous voulons que l'utilisateur n'ait qu'à spécifier le type de `B` au moment de l'appel,
+nous utilisons donc une voie détournée pour permettre au compilateur d'inférer le type de `Poly`
+à partir du type de la valeur en paramètre : 
 
 ```tut:book:silent
 implicit class ProductMapperOps[A](a: A) {
@@ -60,8 +58,7 @@ implicit class ProductMapperOps[A](a: A) {
   def mapTo[B]: Builder[B] = new Builder[B]
 }
 ```
-
-Here's an example of the method's use:
+Voici un exemple de l'utilisation de cette méthode :
 
 ```tut:book:silent
 object conversions extends Poly1 {
@@ -78,9 +75,9 @@ case class IceCream2(name: String, hasCherries: Boolean, numCones: Int)
 IceCream1("Sundae", 1, false).mapTo[IceCream2](conversions)
 ```
 
-The `mapTo` syntax looks like a single method call,
-but is actually two calls:
-one call to `mapTo` to fix the `B` type parameter,
-and one call to `Builder.apply` to specify the `Poly`.
-Some of shapeless' built-in ops extension methods use similar tricks
-to provide the user with convenient syntax.
+La syntaxe de `mapTo` ressemble à un simple appel de méthode,
+mais il s'agit en réalité de deux appels :
+un appel à `mapTo` pour fixer le paramètre de type `B` et
+un appel à `Builder.apply` pour spécifier le `Poly`.
+Certaines méthodes d'extension ops de shapeless utilisent la même astuce pour
+fournir une syntaxe plus simple à l'utilisateur.

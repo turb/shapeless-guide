@@ -1,30 +1,31 @@
-## Deriving instances for products {#sec:generic:products}
+## Déduire des instances pour les produits {#sec:generic:products}
 
-In this section we're going to use shapeless
-to derive type class instances for product types
+Dans cette section nous allons utiliser shapeless pour 
+déduire des instances de types classes pour des types de produits.
 (i.e. case classes).
-We'll use two intuitions:
 
-1. If we have type class instances
-   for the head and tail of an `HList`,
-   we can derive an instance for the whole `HList`.
+Utilisons deux intuitions :
 
-2. If we have a case class `A`, a `Generic[A]`,
-   and a type class instance for the generic's `Repr`,
-   we can combine them to create an instance for `A`.
+1. Si l'on a une instance de type class 
+   pour la tête et la queue d'une `HList`,
+   on peut en déduire l'instance de toute la `HList`.
 
-Take `CsvEncoder` and `IceCream` as examples:
+2. Si nous avons une case class `A`, un `Generic[A]` 
+   et une instance de type class pour le `Repr` de ce générique,
+   nous pouvons alors les combiner pour obtenir une instance de `A`.
 
- - `IceCream` has a generic `Repr` of type
+Prenons `CsvEncoder` et `IceCream` comme exemples :
+
+ - `IceCream` a un `Repr` générique de type
    `String :: Int :: Boolean :: HNil`.
 
- - The `Repr` is made up of
-   a `String`, an `Int`, a `Boolean`, and an `HNil`.
-   If we have `CsvEncoders` for these types,
-   we can create an encoder for the whole thing.
+ - Le `Repr` est fait d'une
+    `String`, d'un `Int`, d'un `Boolean` et d'une `HNil`.
+   Si nous avons un  `CsvEncoders` pour ces types alors nous 
+   disposons d'un encodeur pour le tout.
 
- - If we can derive a `CsvEncoder` for the `Repr`,
-   we can create one for `IceCream`.
+ - Si nous pouvons déduire un `CsvEncoder` pour le `Repr`,
+   nous pouvons en créer un pour `IceCream`.
 
 ```tut:book:invisible
 // ----------------------------------------------
@@ -60,10 +61,10 @@ val employees: List[Employee] = List(
 // ----------------------------------------------
 ```
 
-### Instances for *HLists*
+### Les instances de *HLists*
 
-Let's start by defining an instance constructor
-and `CsvEncoders` for `String`, `Int`, and `Boolean`:
+Commençons par définir les constructeurs d'instance de `CsvEncoders` pour
+  `String`, `Int` et `Boolean`:
 
 ```tut:book:silent
 def createEncoder[A](func: A => List[String]): CsvEncoder[A] =
@@ -81,10 +82,10 @@ implicit val booleanEncoder: CsvEncoder[Boolean] =
   createEncoder(bool => List(if(bool) "yes" else "no"))
 ```
 
-We can combine these building blocks
-to create an encoder for our `HList`.
-We'll use two rules:
-one for `HNil` and one for `::` as shown below:
+Nous pouvons combiner ces blocs de construction
+pour créer un encodeur pour notre `HList`.
+Nous utiliserons deux règles :
+une pour  `HNil` et une pour `::` comme illustré ci-dessous :
 
 ```tut:book:silent
 import shapeless.{HList, ::, HNil}
@@ -103,9 +104,9 @@ implicit def hlistEncoder[H, T <: HList](
   }
 ```
 
-Taken together, these five instances
-allow us to summon `CsvEncoders` for any `HList`
-involving `Strings`, `Ints`, and `Booleans`:
+Prises toutes ensemble, ces cinq instances nous 
+permettent d'invoquer un `CsvEncoders` pour toute `HList`
+impliquant `Strings`, `Ints` et `Booleans`:
 
 ```tut:book:silent
 val reprEncoder: CsvEncoder[String :: Int :: Boolean :: HNil] =
@@ -116,11 +117,11 @@ val reprEncoder: CsvEncoder[String :: Int :: Boolean :: HNil] =
 reprEncoder.encode("abc" :: 123 :: true :: HNil)
 ```
 
-### Instances for concrete products {#sec:generic:product-generic}
+### Des instance pour nos produits {#sec:generic:product-generic}
 
-We can combine our derivation rules for `HLists`
-with an instance of `Generic`
-to produce a `CsvEncoder` for `IceCream`:
+On peut combiner nos règles de déduction de `HLists` avec
+nos instances de `Generic` 
+pour produire un `CsvEncoder` pour `IceCream`:
 
 ```tut:book:silent
 import shapeless.Generic
@@ -131,19 +132,17 @@ implicit val iceCreamEncoder: CsvEncoder[IceCream] = {
   createEncoder(iceCream => enc.encode(gen.to(iceCream)))
 }
 ```
-
-and use it as follows:
+et l'utiliser comme suit :
 
 ```tut:book
 writeCsv(iceCreams)
 ```
-
-This solution is specific to `IceCream`.
-Ideally we'd like to have a single rule
-that handles all case classes
-that have a `Generic` and a matching `CsvEncoder`.
-Let's work through the derivation step by step.
-Here's a first cut:
+Mais cette solution est spécifique à `IceCream`.
+Idéalement on voudrait définir une 
+seule règle pour toutes les case classes
+qui ont un `Generic` et le `CsvEncoder` correspondant.
+Montrons pas à pas comment faire cette déduction.
+Voici la première étape :
 
 ```scala
 implicit def genericEncoder[A](
@@ -152,11 +151,10 @@ implicit def genericEncoder[A](
   enc: CsvEncoder[???]
 ): CsvEncoder[A] = createEncoder(a => enc.encode(gen.to(a)))
 ```
-
-The first problem we have is
-selecting a type to put in place of the `???`.
-We want to write the `Repr` type associated with `gen`,
-but we can't do this:
+Nous devons choisir le type à placer à la place de `???`.
+Mais le problème est que l'on ne peut
+pas utiliser le type `Repr` associé avec `gen`,
+la solution suivante n'est pas possible :
 
 ```tut:book:fail
 implicit def genericEncoder[A](
@@ -167,12 +165,12 @@ implicit def genericEncoder[A](
   createEncoder(a => enc.encode(gen.to(a)))
 ```
 
-The problem here is a scoping issue:
-we can't refer to a type member of one parameter
-from another parameter in the same block.
-The trick to solving this is
-to introduce a new type parameter to our method
-and refer to it in each of the associated value parameters:
+Nous avons ici un problème de scope :
+On ne peut faire référence à un membre de type d'un paramètre 
+à partir d'un autre paramètre du même bloc.
+L'astuce pour contourner ce problème 
+est d'ajouter un nouveau paramètre de type à notre méthode,
+et y faire référence dans chacune des valeurs associées :
 
 ```tut:book:silent
 implicit def genericEncoder[A, R](
@@ -183,25 +181,26 @@ implicit def genericEncoder[A, R](
   createEncoder(a => enc.encode(gen.to(a)))
 ```
 
-We'll cover this coding style in more detail the next chapter.
-Suffice to say, this definition now compiles and works as expected
-and we can use it with any case class as expected.
-Intuitively, this definition says:
+Nous traiterons ce style d'écriture dans le chapitre suivant.
+Maintenant, cette définiton compile et fonctionne comme attendu avec 
+n'importe quelle case class.
+Intuitivement, la définition nous dit :
 
-> *Given a type `A` and an `HList` type `R`,
-> an implicit `Generic` to map `A` to `R`,
-> and a `CsvEncoder` for `R`,
-> create a `CsvEncoder` for `A`.*
+> *Avec un `A` donné et une `HList` de type `R`,
+> avec un implicite `Generic` qui relie `A` a `R`
+> et un `CsvEncoder` pour `R`,
+> alors on crée un `CsvEncoder` pour `A`.*
 
-We now have a complete system that handles any case class.
-The compiler expands a call like:
+Nous avons maintenant un système complet qui peut gérer n'importe quelle case class.
+
+L'appel suivant
 
 ```tut:book:silent
 writeCsv(iceCreams)
 
 ```
 
-to use our family of derivation rules:
+est résolu par le compilateur comme suit :
 
 ```tut:book:silent
 writeCsv(iceCreams)(
@@ -212,18 +211,18 @@ writeCsv(iceCreams)(
         hlistEncoder(booleanEncoder, hnilEncoder)))))
 ```
 
-and can infer the correct expansions
-for many different product types.
-I'm sure you'll agree,
-it's nice not to have to write this code by hand!
+et il peut inférer les valeurs correctes pour 
+un grand nombre de types différents.
+Tout comme moi, 
+je suis sur que vous appréciez ne pas avoir à écrire ce code à la main !
 
 <div class="callout callout-info">
-*Aux type aliases*
+*l'alias de type Aux*
 
-Type refinements like `Generic[A] { type Repr = L }`
-are verbose and difficult to read,
-so shapeless provides a type alias `Generic.Aux`
-to rephrase the type member as a type parameter:
+Les types refinements comme  `Generic[A] { type Repr = L }`
+sont verbeux et difficiles à lire,
+c'est la raison pour laquelle shapeless fournit un alias de type, `Generic.Aux`,
+pour reformuler le membre de type en un paramètre de type :
 
 ```scala
 package shapeless
@@ -232,8 +231,7 @@ object Generic {
   type Aux[A, R] = Generic[A] { type Repr = R }
 }
 ```
-
-Using this alias we get a much more readable definition:
+Avec l'alias de type la définition devient beaucoup plus lisible :
 
 ```tut:book:silent
 implicit def genericEncoder[A, R](
@@ -244,23 +242,22 @@ implicit def genericEncoder[A, R](
   createEncoder(a => env.encode(gen.to(a)))
 ```
 
-Note that the `Aux` type isn't changing any semantics---it's
-just making things easier to read.
-This "`Aux` pattern" is used frequently
-in the shapeless codebase.
+Notez bien que le type `Aux` ne change pas la sémantique, 
+cela rend juste les chose plus faciles à lire. 
+Le pattern `Aux` est souvent utilisé dans le code de shapeless.
+
 </div>
 
-### So what are the downsides?
+### Alors quels en sont les inconvénients ?
 
-If all of the above seems pretty magical,
-allow us to provide one significant dose of reality.
-If things go wrong, the compiler isn't great at telling us why.
+Si tout ce que l'on vient de voir semble magique,
+permettez-moi de vous ramener à la réalité.
+Si quelque-chose tourne mal, le compilateur ne vous sera pas d'une grande aide.
 
-There are two main reasons the code above might fail to compile.
-The first is when the compiler can't find
-an instance of `Generic`.
-For example, here we try to call `writeCsv`
-with a non-case class:
+Il existe deux raisons pour laquelle le code précédent pourrait ne pas compiler.
+La première est si le compilateur ne peut pas trouver l'instance de `Generic`.
+Par exemple, si nous essayons d'appeler `writeCsv` avec une
+simple classe :
 
 ```tut:book:silent
 class Foo(bar: String, baz: Int)
@@ -270,20 +267,18 @@ class Foo(bar: String, baz: Int)
 writeCsv(List(new Foo("abc", 123)))
 ```
 
-In this case the error message is relatively easy to understand.
-If shapeless can't calculate a `Generic`
-it means that the type in question isn't an ADT---somewhere
-in the algebra there is a type that isn't a case class
-or a sealed abstract type.
+Dans ce cas le message est relativement simple à comprendre.
+Si shapeless ne peut calculer un `Generic` cela veut dire que le type en question n'est pas un ADT 
+(il y a quelque-part dans l'algèbre un type qui n'est pas une case class ou un trait scellé).
 
-The other potential source of failure
-is when the compiler can't calculate
-a `CsvEncoder` for our `HList`.
-This normally happens because we don't have
-an encoder for one of the fields in our ADT.
-For example, we haven't yet defined
-a `CsvEncoder` for `java.util.Date`,
-so the following code fails:
+L'autre source potentielle d'erreur 
+survient lorsque le compilateur ne peut calculer un 
+`CsvEncoder` pour notre `HList`.
+Cela arrive normalement car l'on n'a pas 
+d'encodeur pour un des champs de notre ADT.
+Par exemple nous n'avons pas encore défini de 
+`CsvEncoder` pour `java.util.Date`, 
+donc le code suivant ne fonctionne pas :
 
 ```tut:book:silent
 import java.util.Date
@@ -295,19 +290,19 @@ case class Booking(room: String, date: Date)
 writeCsv(List(Booking("Lecture hall", new Date())))
 ```
 
-The message we get here isn't very helpful.
-All the compiler knows is
-it tried a lot of combinations of implicits
-and couldn't make them work.
-It has no idea which combination came closest to the desired result,
-so it can't tell us where the source(s) of failure lie.
+Le messsage d'erreur ne nous aide pas vraiment.
+Tout ce que le compilateur sait, 
+c'est qu'il a essayé un grand nombre de combinaisons d'implicites 
+et qu'aucune ne fonctionnait.
+Il n'a aucune idée de quelle combinaison était la plus proche de celle attendue,
+donc il ne peut nous dire où se trouve la source du problème. 
 
-There's not much good news here.
-We have to find the source of the error ourselves
-by a process of elimination.
-We'll discuss debugging techniques
-in Section [@sec:generic:debugging].
-For now, the main redeeming feature
-is that implicit resolution always fails at compile time.
-There's little chance that we will end up
-with code that fails during execution.
+Il n'y a pas de quoi se réjouir ici.
+Nous devons trouver nous-même la source 
+des erreurs par un processus d'élimination.
+Nous aborderons les techniques de 
+debuggage dans la Section [@sec:generic:debugging].
+Pour l'instant la seule fonctionalité qui compense c'est que 
+la résolution d'implicite plantera toujours à la compilation.
+Il y a une petite chance que cela finisse 
+par produire du code qui plante durant l'exécution.

@@ -1,24 +1,18 @@
-## Summary
+## Résumé
 
-In this chapter we discussed `LabelledGeneric`,
-a variant of `Generic` that exposes type and field names
-in its generic representations.
+Dans ce chapitre, nous avons abordé `LabelledGeneric`,
+une variante de `Generic` qui donne accès aux noms des
+champs et aux noms des types dans sa représentation générique.
 
-The names exposed by `LabelledGeneric`
-are encoded as type-level tags
-so we can target them during implicit resolution.
-We started the chapter discussing *literal types*
-and the way shapeless uses them in its tags.
-We also discussed the `Witness` type class,
-which is used to reify literal types as values.
+Les noms accessible grâce à `LabelledGeneric` sont encodés par des tags au type-level afin de les utiliser durant la résolution d'implicites.
+Nous avons commencer ce chapitre en abordant les *types littéraux*
+et la façon dont shapeless les utilise dans ces tags.
+Nous avons également abordé la type class `Witness` utilisée pour
+extraire les valeurs des types littéraux.
 
-Finally, we combined `LabelledGeneric`,
-literal types, and `Witness` to build a `JsonEcoder` library
-that includes sensible names in its output.
+Enfin, nous avons combiné `LabelledGeneric`, les types littéraux et `Witness`
+pour construire une bibliothèque d'encodage JSON qui permet d'inclure les noms présents dans les ADT dans la sortie JSON.
 
-The key take home point from this chapter
-is that none of this code uses runtime reflection.
-Everything is implemented with types, implicits,
-and a small set of macros that are internal to shapeless.
-The code we're generating is consequently
-very fast and reliable at runtime.
+Le plus important dans ce chapitre est que tout ce code n'utilise jamais la réflexion.
+Tout est implémenté avec des types, des implicits et le petit ensemble de macros interne à shapeless.
+Le code que nous générons est par conséquent très rapide à exécuter.

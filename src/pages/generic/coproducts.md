@@ -1,4 +1,4 @@
-## Deriving instances for coproducts {#sec:generic:coproducts}
+## Déduire les instances pour les coproduits {#sec:generic:coproducts}
 
 ```tut:book:invisible
 // ----------------------------------------------
@@ -56,11 +56,10 @@ implicit def genericEncoder[A, R](
 
 // ----------------------------------------------
 ```
-
-In the last section we created a set of rules
-to automatically derive a `CsvEncoder` for any product type.
-In this section we will apply the same patterns to coproducts.
-Let's return to our shape ADT as an example:
+Dans la section précédente nous avons crée un ensemble de règle
+pour déduire automatiquement un `CsvEncoder` pour n'importe quel type de produits.
+Dans cette section allons appliqué les memes patterns aux coproduits.
+Retournons a notre exemple, l'ADT shape :
 
 ```tut:book:silent
 sealed trait Shape
@@ -68,17 +67,16 @@ final case class Rectangle(width: Double, height: Double) extends Shape
 final case class Circle(radius: Double) extends Shape
 ```
 
-The generic representation for `Shape`
-is `Rectangle :+: Circle :+: CNil`.
-In Section [@sec:generic:product-generic]
-we defined product encoders for `Rectangle` and `Circle`.
-Now, to write generic `CsvEncoders` for `:+:` and `CNil`,
-we can use the same principles we used for `HLists`:
+La repésentation générique de `Shape` est 
+`Rectangle :+: Circle :+: CNil`.
+Dans la Section [@sec:generic:product-generic]
+nous avons définie des encodeurs de produit pour `Rectangle` et `Circle`.
+Maintenant, pour écrire des `CsvEncoders` générique pour `:+:` et `CNil`,
+nous alons utilisé les mêmes principes que pour `HLists`:
 
 ```tut:book:silent
 import shapeless.{Coproduct, :+:, CNil, Inl, Inr}
 
-implicit val cnilEncoder: CsvEncoder[CNil] =
   createEncoder(cnil => throw new Exception("Inconceivable!"))
 
 implicit def coproductEncoder[H, T <: Coproduct](
@@ -91,26 +89,23 @@ implicit def coproductEncoder[H, T <: Coproduct](
 }
 ```
 
-There are two key points of note:
+Il importe de noter deux choses :
 
- 1. Because `Coproducts` are *disjunctions* of types,
-    the encoder for `:+:` has to *choose*
-    whether to encode a left or right value.
-    We pattern match on the two subtypes of `:+:`,
-    which are `Inl` for left and `Inr` for right.
+ 1. Comme `Coproducts` est une *disjonction* de types,
+    l'encoder de `:+:` doit *choisir*
+    si il a à encoder la valeur de droit ou de gauche.
+    On fait un pattern matching sur les deux sous types de `:+:`,
+    qui sont `Inl` pour la gauche et `Inr` pour la droite.
 
- 2. Alarmingly, the encoder for `CNil` throws an exception!
-    Don't panic, though.
-    Remember that we can't
-    create values of type `CNil`,
-    so the `throw` expression is dead code.
-    It's ok to fail abruptly here because
-    we will never reach this point.
+ 2. Etonnament, l'encoder de `CNil` lève une exception!
+    Mais pas de panique.
+    Rappelez vous que l'on ne peut 
+    crée de valeur pour le type `CNil`,
+    donc the `throw` et en fait du code mort.
 
-If we place these definitions
-alongside our product encoders from Section [@sec:generic:products],
-we should be able to serialize a list of shapes.
-Let's give it a try:
+Si l'on utilise ces définitions avec celle de nos produit de la Section [@sec:generic:products],
+on sera capable de sérializer une liste de shapes.
+Essayons:
 
 ```tut:book:silent
 val shapes: List[Shape] = List(
@@ -123,51 +118,51 @@ val shapes: List[Shape] = List(
 writeCsv(shapes)
 ```
 
-Oh no, it failed!
-The error message is unhelpful as we discussed earlier.
-The reason for the failure is
-we don't have a `CsvEncoder` instance for `Double`:
+Oh non, ca n'a pas fonctionné !
+Le message d'erreur ne nous aide pas comme prévu.
+Nous avons cette erreur car nous n'avons 
+pas d'instance de `CsvEncoder` pour `Double` :
 
 ```tut:book:silent
 implicit val doubleEncoder: CsvEncoder[Double] =
   createEncoder(d => List(d.toString))
 ```
 
-With this definition in place, everything works as expected:
+Avec cette nouvelle définition, tout fonctionne comme prévus:
 
 ```tut:book
 writeCsv(shapes)
 ```
 
 <div class="callout callout-warning">
-  *SI-7046 and you*
+  *SI-7046 et vous*
+  Il y a dans Scala un bug du compilateur appeler [SI-7046][link-si7046]
+  qui peut amener la résolution de générique pour comproduct a ne pas fonctionner.
+  Le bug provoque dans certaines partie de l'API de macro,
+  dont shapeless dépend, deviens sensible a l'ordre 
+  des définitions dans le code source.
+  C'est un problème qui peut souvant etre contourner
+  en réordonant le code et en renoment les fichiers,
+  mais ces solution on tendence a ne durée qu'un temps
+  et sont peut fiable.
 
-  There is a Scala compiler bug called [SI-7046][link-si7046]
-  that can cause coproduct generic resolution to fail.
-  The bug causes certain parts of the macro API,
-  on which shapeless depends, to be sensitive
-  to the order of the definitions in our source code.
-  Problems can often be worked around
-  by reordering code and renaming files,
-  but such workarounds tend to be volatile and unreliable.
-
-  If you are using Lightbend Scala 2.11.8 or earlier
-  and coproduct resolution fails for you,
-  consider upgrading to Lightbend Scala 2.11.9
-  or Typelevel Scala 2.11.8.
-  SI-7046 is fixed in each of these releases.
+  Si vous utilisez Lightbend Scala 2.11.8 ou une version plus ancienne
+  et que vous ètes toucher par ce problème, pensez a mettre a jour
+  vers la version Lightbend Scala 2.11.9 ou Typelevel Scala 2.11.8.
+  SI-7046 est corriger dans chaqu'une de ces versions.
 </div>
 
-### Aligning CSV output
+### Aligner les colonnes dans la sortie CSV
 
-Our CSV encoder isn't very practical in its current form.
-It allows fields from `Rectangle` and `Circle` to
-occupy the same columns in the output.
-To fix this problem we need to modify
-the definition of `CsvEncoder`
-to incorporate the width of the data type
-and space the output accordingly.
-The examples repo linked
-in Section [@sec:intro:about-this-book]
-contains a complete implementation of `CsvEncoder`
-that addresses this problem.
+Notre encodeur de CSV n'est idéal dans ca forme courante.
+Il permet au champs de `Rectangle` et `Circle` 
+de se retrouver dans la meme colonne.
+Pour remédier a a ce problème il faut changer 
+la définition de `CsvEncoder`
+pour ajouter la largeur des type de données et ainsi 
+espacer les colonnes en conséquence.
+Le repo d'exemple contenant 
+l'implémentation complète d'un `CsvEncoder`
+traitant ce problème est 
+linké dans la Section [@sec:intro:about-this-book]
+

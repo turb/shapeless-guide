@@ -1,12 +1,12 @@
-## Simple ops examples
+## Exemple d'ops simples
 
-`HList` has `init` and `last`
-extension methods based on two type classes:
-`shapeless.ops.hlist.Init` and
+`HList` dispose d'une méthode d'extension `init` 
+et d'un autre `last` basé sur deux type classes :
+`shapeless.ops.hlist.Init` et
 `shapeless.ops.hlist.Last`.
-`Coproduct` has similar methods and type classes.
-These serve as perfect examples of the ops pattern.
-Here are simplified definitions of the extension methods:
+`Coproduct` a des méthodes et des type classes similaires.
+Ils représentent un exemple parfait du pattern ops.
+Voici une définition simplifiée des méthodes d'extension :
 
 ```scala
 package shapeless
@@ -18,10 +18,9 @@ implicit class HListOps[L <: HList](l : L) {
 }
 ```
 
-The return type of each method is determined
-by a dependent type on the implicit parameter.
-The instances for each type class provide the actual mapping.
-Here's the skeleton definition of `Last` as an example:
+Le type de retour de chaque méthode est déterminé par le type dépendant du paramètre implicite.
+Ce sont les instances de chaque type class qui fournissent la relation.
+Voici le squelette de l'implémentation de `Last` en guise d'exemple :
 
 ```scala
 trait Last[L <: HList] {
@@ -37,14 +36,11 @@ object Last {
 }
 ```
 
-We can make a couple of interesting observations
-about this implementation.
-First, we can typically implement ops type classes
-with a small number of instances (just two in this case).
-We can therefore package *all* of the required instances
-in the companion object of the type class,
-allowing us to call the corresponding extension methods
-without any imports from `shapeless.ops`:
+Nous pouvons faire quelques observations intéressantes sur cette implémentation.
+Premièrement, nous pouvons généralement implémenter les type classes 
+ops avec un petit nombre d'instances (seulement deux dans cet exemple).
+Nous pouvons ainsi rassembler *toutes* les instances requises dans l'objet compagnon de la type classe,
+ce qui nous permet d'appeler les methodes d'extention de `shapeless.ops` qui n'ont aucun rapport :
 
 ```tut:book:silent
 import shapeless._
@@ -55,11 +51,11 @@ import shapeless._
 ("Hello" :: 123 :: true :: HNil).init
 ```
 
-Second, the type class is only defined for `HLists`
-with at least one element.
-This gives us a degree of static checking.
-If we try to call `last` on an empty `HList`,
-we get a compile error:
+Ensuite, la type classe n'est définie que pour les `HLists` qui contiennent au moins un élément.
+Ce qui nous donne quelques vérifications statiques.
+Si on essaie d'appeler `last` sur une `HList` vide, 
+cela provoque une erreur de compilation :
+
 
 ```tut:book:fail
 HNil.last

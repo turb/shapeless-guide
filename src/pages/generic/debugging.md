@@ -1,4 +1,4 @@
-## Debugging implicit resolution {#sec:generic:debugging}
+## Débugger les résolutions d'implicites {#sec:generic:debugging}
 
 ```tut:book:invisible
 import shapeless._
@@ -69,18 +69,16 @@ implicit def genericEncoder[A, R](
   createEncoder(enc.value.width)(a => enc.value.encode(gen.to(a)))
 ```
 
-Failures in implicit resolution
-can be confusing and frustrating.
-Here are a couple of techniques to use
-when implicits go bad.
+Les erreurs dans la résolution
+d'implicites peuvent être déconcertantes et frustrantes.
+Voici quelques techniques à utiliser quand les choses vont mal.
 
-### Debugging using *implicitly*
+### Débugger en utilisant *implicitly*
 
-What can we do when the compiler
-simply fails to find an implicit value?
-The failure could be caused by
-the resolution of any one of the implicits in use.
-For example:
+Que peut-on faire quand les compilateurs 
+ne trouvent simplement pas la valeur implicite ?
+L'erreur peut être causée par la résolution de n'importe quel implicit.
+Par exemple :
 
 ```tut:book:silent
 case class Foo(bar: Int, baz: Float)
@@ -89,22 +87,21 @@ case class Foo(bar: Int, baz: Float)
 ```tut:book:fail
 CsvEncoder[Foo]
 ```
+Nous avons une erreur car nous navons 
+pas défini `CsvEncoder` pour `Float`.
+Pourtant, cela n'est peut-être pas évident à voir dans le code de l'application.
+On peut chercher l'erreur en imaginant comment l'implicite est censé se développer,
+insérer des appels à `CsvEncoder.apply` ou à `implicitly` 
+au-dessus de l'erreur pour voir si cela compile.
+Commençons avec la représentation générique de `Foo`:
 
-The reason for the failure is that
-we haven't defined a `CsvEncoder` for `Float`.
-However, this may not be obvious in application code.
-We can work through the expected expansion sequence
-to find the source of the error,
-inserting calls to `CsvEncoder.apply` or `implicitly`
-above the error to see if they compile.
-We start with the generic representation of `Foo`:
 
 ```tut:book:fail
 CsvEncoder[Int :: Float :: HNil]
 ```
-
-This fails so we know we have to search deeper in the expansion.
-The next step is to try the components of the `HList`:
+L'erreur ici nous en dit un peu plus, on doit continuer à 
+chercher plus profondément dans la chaînes d'appel des implicites.
+L'étape suivante est de tester les composants de `HList` :
 
 ```tut:book:silent
 CsvEncoder[Int]
@@ -114,18 +111,18 @@ CsvEncoder[Int]
 CsvEncoder[Float]
 ```
 
-`Int` passes but `Float` fails.
-`CsvEncoder[Float]` is a leaf in our tree of expansions,
-so we know to start by implementing this missing instance.
-If adding the instance doesn't fix the problem
-we repeat the process to find the next point of failure.
+`Int` fonctionne mais `Float` lève une erreur.
+`CsvEncoder[Float]` est une feuille dans le développement de notre abre,
+on sait donc que l'on doit commencer par implémenter l'instance manquante.
+Si ajouter l'instance ne corrige pas le problème, 
+on répète le processus pour trouver le prochain point problématique.
 
-### Debugging using *reify*
+### Debugger en utilisant *reify*
 
-The `reify` method from `scala.reflect`
-takes a Scala expression as a parameter and returns
-an AST object representing the expression tree,
-complete with type annotations:
+La méthode `reify` de `scala.reflect` prend une 
+expression scala en paramètre et retourne
+un objet AST représentant l'expression sous 
+forme d'abre avec toutes les annotations de types. 
 
 ```tut:book:silent
 import scala.reflect.runtime.universe._
@@ -135,10 +132,11 @@ import scala.reflect.runtime.universe._
 println(reify(CsvEncoder[Int]))
 ```
 
-The types inferred during implicit resolution
-can give us hints about problems.
-After implicit resolution,
-any remaining existential types such as `A` or `T`
-provide a sign that something has gone wrong.
-Similarly, "top" and "bottom" types such as `Any` and `Nothing`
-are evidence of failure.
+Les types inferés pendant la résolution d'implicite 
+peuvent nous donner un indice sur le problème.
+Après la résolution d'implicite,
+tous les types existentiels restants comme `A` ou `T` 
+indiquent que quelque-chose n'a pas bien fonctionné.
+Les types "top" et "bottom" comme `Any` and `Nothing` 
+sont aussi la preuve d'une erreur.
+

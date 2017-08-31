@@ -1,86 +1,85 @@
-## About this book {#sec:intro:about-this-book}
+## À propos du livre {#sec:intro:about-this-book}
 
-This book is divided into two parts.
+Le livre est divisé en deux parties.
 
-In Part I we introduce *type class derivation*,
-which allows us to create type class instances
-for any algebraic data type
-using only a handful of generic rules.
-Part I consists of four chapters:
+Dans la Partie I, nous introduisons la *déduction de type class (type class derivation)*,
+qui permet de créer des instances de type class
+pour tous types de données algébriques
+avec quelques règles génériques pour tout matériel.
+La Partie I comprend quatre chapitres :
 
-  - In Chapter [@sec:representations]
-    we introduce *generic representations*.
-    We also introduce shapeless' `Generic` type class,
-    which can produce a generic encoding
-    for any case class or sealed trait.
+  - Dans le chapitre [@sec:representations],
+    nous introduisons les *generic representations*,
+    mais aussi la type class `Generic` de shapeless,
+    qui permet de produire un encodage générique 
+    de n'importe quelle case class ou famille scellée.
 
-  - In Chapter [@sec:generic] we use `Generic`
-    to derive instances of a custom type class.
-    We create an example type class
-    to encode Scala data as
+  - Dans le chapitre [@sec:generic] on utilise `Generic`
+    pour déduire une instance d'une de vos propres type class.
+    On crée un exemple de type class pour
+    encoder des données scala en 
     Comma Separated Values (CSV),
-    but the techniques we cover
-    can be extended to many situations.
-    We also introduce shapeless' `Lazy` type,
-    which lets us handle recursive data like lists and trees.
+    mais la technique utilisée
+    peut être adaptée à de nombreuses situations.
+    Nous présentons également le type `Lazy` de shapeless,
+    qui permet de manipuler les types de données récusives 
+    comme les listes ou les abres.
 
-  - In Chapter [@sec:type-level-programming]
-    we introduce the theory and programming patterns we need
-    to generalise the techniques from earlier chapters.
-    Specifically we look at dependent types,
-    dependently typed functions,
-    and type level programming.
-    This allows us to access
-    more advanced applications of shapeless.
+  - Dans le chapitre [@sec:type-level-programming],
+    nous présentons les théories et les patterns de programmation
+    nécessaires à la généralisation des techniques du chapitre précédent.
+    On se penchera sur les types dépendants, 
+    les fonctions à type dépendant et la programmation au type level.
+    Cela nous permet d'utiliser des applications plus avancées de shapeless.
 
-  - In Chapter [@sec:labelled-generic] we introduce `LabelledGeneric`,
-    a variant of `Generic` that exposes field and type names
-    as part of its generic representations.
-    We also introduce additional theory:
-    literal types, singleton types, phantom types, and type tagging.
-    We demonstrate `LabelledGeneric` by creating
-    a JSON encoder that preserves field and type names in its output.
+  - Dans le chapitre [@sec:labelled-generic], nous présentons `LabelledGeneric`,
+    une variante de `Generic` qui divulgue les champs et les noms des types
+    dans sa repésentation générique.
+    Nous présentons également une théorie supplémentaire :
+    les types littéraux, les types singleton, les types fantôme et les type tagging.
+    Nous illustrons `LabelledGeneric` en créant 
+    un encodeur JSON qui préserve les champs et les noms des types dans sa sortie.
 
-In Part II we introduce the "ops type classes"
-provided in the `shapeless.ops` package.
-Ops type classes form an extensive library of tools
-for manipulating generic representations.
-Rather than discuss every op in detail,
-we provide a theoretical primer in three chapters:
+Dans la Partie II, nous présentons les "ops type classes"
+fournies dans le package `shapeless.ops`.
+Les ops type classes constituent une large bibliotèque d'outils
+pour manipuler les représentations génériques.
+Plutôt que d'expliquer en détails chaque op,
+nous offrons une base théorique en trois chapitres :
 
-  - In Chapter [@sec:ops] we discuss
-    the general layout of the ops type classes
-    and provide an example
-    that strings several simple ops together
-    to form a powerful "case class migration" tool.
+  - Dans le chapitre [@sec:ops], nous proposons
+    une présentation générale des ops type classes
+    et fournissons un exemple
+    qui relie plusieurs ops ensemble
+    pour former un puissant outil de "migration de case class".
 
-  - In Chapter [@sec:poly] we introduce
-    *polymorphic functions*,
-    also known as `Polys`,
-    and show how they are used in
-    ops type classes for mapping,
-    flat mapping, and folding
-    over generic representations.
+  - Dans le chapitre [@sec:poly], nous présentons
+    *les fonctions polymorphique*,
+    également connues sous le nom de `Polys`,
+    et montrons comment les utiliser dans
+    les ops type classes pour « mapper », 
+    « flat mappés » et « folder » 
+    les représentations génériques.
 
-  - Finally, in Chapter [@sec:nat] we introduce
-    the `Nat` type that shapeless uses
-    to represent natural numbers at the type level.
-    We introduce several related ops type classes,
-    and use `Nat` to develop
-    our own version of Scalacheck's `Arbitrary`.
+  - Enfin, dans le chapitre [@sec:nat] nous présentons
+    le type `Nat` que shapeless utilise pour
+    représenter les nombres naturels au type level.
+    Nous présentons plusieurs ops type classes associés,
+    et utilisons `Nat` pour développer notre propre version
+    de `Arbitrary` de Scalacheck.
 
-## Source code and examples
+## Code source et exemples
 
-This book is open source.
-You can find the [Markdown source on Github][link-book-repo].
-The book receives constant updates from the community
-so be sure to check the Github repo
-for the most up-to-date version.
+Ce livre est opensource.
+Vous pouvez trouver [les sources Markdown sur Github][link-book-repo].
+La communauté met constament à jour ce livre.
+Veillez donc à vérifier sur le repo Github
+que vous disposez de la dernière version.
 
-There are also complete implementations of
-the major examples in an [accompanying repo][link-code-repo].
-See the README for installation details.
+Il y existe aussi des implémentations complètes des
+exemples principaux dans un [repo compagnon][link-code-repo].
+Consultez le README pour plus de détails sur l'installation.
 
-We assume shapeless 2.3.2 and either
-Typelevel Scala 2.11.8+ or
+Les exemples utilisent shapeless 2.3.2 et
+Typelevel Scala 2.11.8+ ou
 Lightbend Scala 2.11.9+ / 2.12.1+.
