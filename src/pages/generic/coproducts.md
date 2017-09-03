@@ -67,7 +67,7 @@ final case class Rectangle(width: Double, height: Double) extends Shape
 final case class Circle(radius: Double) extends Shape
 ```
 
-La repésentation générique de `Shape` est 
+La repésentation générique de `Shape` est
 `Rectangle :+: Circle :+: CNil`.
 Dans la Section [@sec:generic:product-generic]
 nous avons définie des encodeurs de produit pour `Rectangle` et `Circle`.
@@ -77,6 +77,7 @@ nous alons utilisé les mêmes principes que pour `HLists`:
 ```tut:book:silent
 import shapeless.{Coproduct, :+:, CNil, Inl, Inr}
 
+implicit val cnilEncoder: CsvEncoder[CNil] =
   createEncoder(cnil => throw new Exception("Inconceivable!"))
 
 implicit def coproductEncoder[H, T <: Coproduct](
@@ -99,7 +100,7 @@ Il importe de noter deux choses :
 
  2. Etonnament, l'encoder de `CNil` lève une exception!
     Mais pas de panique.
-    Rappelez vous que l'on ne peut 
+    Rappelez vous que l'on ne peut
     crée de valeur pour le type `CNil`,
     donc the `throw` et en fait du code mort.
 
@@ -120,7 +121,7 @@ writeCsv(shapes)
 
 Oh non, ca n'a pas fonctionné !
 Le message d'erreur ne nous aide pas comme prévu.
-Nous avons cette erreur car nous n'avons 
+Nous avons cette erreur car nous n'avons
 pas d'instance de `CsvEncoder` pour `Double` :
 
 ```tut:book:silent
@@ -139,7 +140,7 @@ writeCsv(shapes)
   Il y a dans Scala un bug du compilateur appeler [SI-7046][link-si7046]
   qui peut amener la résolution de générique pour comproduct a ne pas fonctionner.
   Le bug provoque dans certaines partie de l'API de macro,
-  dont shapeless dépend, deviens sensible a l'ordre 
+  dont shapeless dépend, deviens sensible a l'ordre
   des définitions dans le code source.
   C'est un problème qui peut souvant etre contourner
   en réordonant le code et en renoment les fichiers,
@@ -155,14 +156,13 @@ writeCsv(shapes)
 ### Aligner les colonnes dans la sortie CSV
 
 Notre encodeur de CSV n'est idéal dans ca forme courante.
-Il permet au champs de `Rectangle` et `Circle` 
+Il permet au champs de `Rectangle` et `Circle`
 de se retrouver dans la meme colonne.
-Pour remédier a a ce problème il faut changer 
+Pour remédier a a ce problème il faut changer
 la définition de `CsvEncoder`
-pour ajouter la largeur des type de données et ainsi 
+pour ajouter la largeur des type de données et ainsi
 espacer les colonnes en conséquence.
-Le repo d'exemple contenant 
+Le repo d'exemple contenant
 l'implémentation complète d'un `CsvEncoder`
-traitant ce problème est 
+traitant ce problème est
 linké dans la Section [@sec:intro:about-this-book]
-
