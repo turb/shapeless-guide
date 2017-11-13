@@ -1,7 +1,7 @@
 ## Coproduit générique
 
 Maintenant que nous savons comment Shapeless encode les types produit,
-qu'en est-t-il des coproduits ?
+qu'en est-il des coproduits ?
 Précédemment, nous avons abordé le `Either`, mais il souffre
 des mêmes inconvénients que les tuples.
 Encore une fois, shapeless fournit son propre encodage, similaire au `HList` :
