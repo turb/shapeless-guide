@@ -1,8 +1,8 @@
 ## Écriture générique pour les produits
 
 Dans la section précédente, nous avons présenté les tuples
-comme une représenation générique des produits.
-Malheursement, les tuples présentent deux inconvénients qui les rendent 
+comme une représentation générique des produits.
+Malheureusement, les tuples présentent deux inconvénients qui les rendent 
 inappropriés aux besoins de shapeless.
 
  1. Chaque taille de tuple est dotée d'un type différent, ces types sont indépendants les uns des autres,
@@ -20,13 +20,13 @@ C'est pourquoi shapeless utilise un encodage générique différent
 pour les produits :  *heterogeneous lists* ou `HLists`[^hlist-name].
 
 [^hlist-name]: `Product` est probablement un meilleur nom pour `HList`,
-mais la bibliotèque standard dispose malheursement déja d'un `scala.Product`.
+mais la bibliothèque standard dispose malheureusement déjà d'un `scala.Product`.
 
 La `HList` est soit une liste vide `HNil`,
 soit une paire `::[H, T]` où `H` est un type arbitraire
 et `T` une autre `HList`.
 Parce que chaque `::` a son propre `H` et `T`,
-le type de chaque élémment est encodé séparément 
+le type de chaque élément est encodé séparément 
 dans le type de la liste global:
 
 ```tut:book:silent
@@ -37,7 +37,7 @@ val product: String :: Int :: Boolean :: HNil =
 ```
 Le type et la valeur de la `HList` ci-dessus se reflètent.
 Les deux représentent les 3 membres : une `String`, un `Int`, et un `Boolean`.
-On peut y retrouver la `tête` et la `queue`
+On peut y retrouver la `tête` et la `queue`,
 et le type des éléments y est préservé : 
 
 ```tut:book
@@ -68,16 +68,16 @@ comme un mapping, un filtrage ou une concaténation de listes.
 On abordera cela plus en détails dans la Partie II. 
 
 Les propriétés que l'on obtient avec `HLists` ne sont pas magiques.
-On aurais pu obtenir ces fonctionalités en utilisant `(A, B)` et `Unit`
+On aurait pu obtenir ces fonctionalités en utilisant `(A, B)` et `Unit`
 comme alternative à  `::` et `HNil`.
-Néanmoins, il existe un aventage à garder nos 
+Néanmoins, il existe un avantage à garder nos 
 types génériques séparés de nos types sémantiques 
 dans les applications.
 `HList` fournit cette séparation.
 
 ### Changer de représentation en utilisant *Generic*
 
-Shapless fournit une type class appelée `Generic`
+Shapeless fournit une type class appelée `Generic`
 qui permet de convertir des ADT concrets en représentation générique
 et vice versa.
 Il y a quelques macros en coulisses qui permettent d'invoquer des instances
