@@ -93,13 +93,12 @@ writeCsv(iceCreams)
 
 ### Résoudre les instances
 
-Les types classes sont tres flexible mais elles nous imposent
+Les types classes sont très flexibles mais elles nous imposent
 de définir une instance pour 
 chaque type qui nous intéressent.
-Heureusement, le compilateur de Scala a plus d'un tour dans sont sac,
-si on lui donne certaines regles, il est capable de résoudre les instances pour nous.  
-Par exemple, l'on peut ecrire un règle qui nous crée un `CsvEncoder` pour `(A, B)` pour
-un `CsvEncoders` pour `A` et un pour `B` donnée:
+Heureusement, le compilateur de Scala a plus d'un tour dans son sac :
+si on lui donne certaines règles, il est capable de résoudre les instances pour nous.  
+Par exemple, on peut écrire une règle qui crée un `CsvEncoder` pour `(A, B)` à partir d'un `CsvEncoders` pour `A` et d'un pour `B` :
 
 ```tut:book:silent
 implicit def pairEncoder[A, B](
@@ -116,38 +115,38 @@ implicit def pairEncoder[A, B](
 ```
 
 Quand tous les parametres d'un `implicit def`
-sont eux meme marquer `implicit`,
+sont eux-mêmes marqués `implicit`,
 alors le compilateur peut l'utiliser comme une règle de résolution
-pour crée des instance a partire d'autres instances.
-Par exemple, si l'on appel `writeCsv` 
+pour créer des instances à partir d'autres instances.
+Par exemple, si on appelle `writeCsv` 
 et qu'on lui passe une `List[(Employee, IceCream)]`,
 le compilateur est capable de combiner
 `pairEncoder`, `employeeEncoder` et `iceCreamEncoder` 
-pour produire le `CsvEncoder[(Employee, IceCream)]` requis:
+pour produire le `CsvEncoder[(Employee, IceCream)]` requis :
 
 ```tut:book
 writeCsv(employees zip iceCreams)
 ```
 
-A partir d'une liste de règles ecrite a partir de 
+À partir d'une liste de règles écrites à partir de 
 `implicit vals` et de `implicit defs`,
-le compilateur est capable de *rechèrcher* les combinaisons 
-pour données l'instance requise.
+le compilateur est capable de *rechercher* les combinaisons 
+pour produire l'instance requise.
 
 
 Cette fonctionalité, connue sous le nom de "résolution d'implicits",
-et ce qui rand le pattern des types classes si puissant en Scala.
+est ce qui rend le pattern des types classes si puissant en Scala.
 
 Même avec cette puissance, le compilateur 
-ne peut démenteler nos case classes et traits scelé.
-L'on est tenu de définir a la mains les instance de nos ADTs.
-Les représentation générique de shapeless change la donne,
-car ils nous permettes de déduire automatiquement les instances de nimporte quel ADT.
+ne peut démembrer nos case classes et traits scellés.
+On est tenus de définir à la main les instances de nos ADTs.
+Les représentations génériques de Shapeless changent la donne,
+car ils nous permettent de déduire automatiquement les instances de n'importe quel ADT.
 
 ### Les définitions de type class idiomatique {#sec:generic:idiomatic-style}
 
-Le style généralement accépter pour la définition d'une type classe idiomatique 
-Il est généralement accépte d'inclure un objet compagon contenant certaines methode standar 
+La manière généralement accepté pour la définition d'une type classe idiomatique 
+est d'inclure un objet compagnon contenant certaines méthodes standards 
 lors de la définition d'une type classe idiomatique :
 
 ```tut:book:silent
@@ -167,15 +166,15 @@ object CsvEncoder {
 }
 ```
 
-La methode `apply` connue sous le nom de "summoner" ou "materializer",
-nous permet d'invoquer une instance de type class selon un type donnée:
+La methode `apply`, connue sous le nom de "summoner" ou "materializer",
+nous permet d'invoquer une instance de type class selon un type donné :
 
 
 ```tut:book
 CsvEncoder[IceCream]
 ```
-Dans les cas les plus simple le "summoner" fait la meme chose
- que la méhode `implicitly` définie dans `scala.Predef`:
+Dans les cas les plus simples le "summoner" fait la même chose
+ que la méthode `implicitly` définie dans `scala.Predef`:
 
 ```tut:book
 implicitly[CsvEncoder[IceCream]]
@@ -183,10 +182,10 @@ implicitly[CsvEncoder[IceCream]]
 Cependent, comme nous le verons dans la Section [@sec:type-level-programming:depfun],
 lors que l'on travaille avec shapeless il arrive que 
 la methode `implicitly` n'infère pas les types correctement.
-L'on peut toujours définir une methode summoner pour avoir le bon comportement,
-donc sela vaux le cup d'un écrire une pour chaque type class que l'on crée.
-L'on peut aussi utiliser une methode de shapeless appeler "`the`"
-(nous y reviendrons):
+On peut toujours définir une méthode "summoner" pour avoir le bon comportement,
+donc cela vaut le coup d'en écrire une pour chaque type class que l'on crée.
+On peut aussi utiliser une méthode de Shapeless appelée "`the`"
+(nous y reviendrons) :
 
 ```tut:book:silent
 import shapeless._
@@ -195,9 +194,9 @@ import shapeless._
 ```tut:book
 the[CsvEncoder[IceCream]]
 ```
-La methode `instance` parfois appelé `pure`,
-fournis une syntaxe simple pour crée de nouvelle instance de type classe,
-réduisant au passage le boilerplate pour les classes anoymes:
+La méthode `instance` parfois appelé `pure`,
+fournit une syntaxe simple pour créer de nouvelles instances de type class,
+réduisant au passage le boilerplate des classes anonymes :
 
 
 ```tut:book:silent
@@ -208,7 +207,7 @@ implicit val booleanEncoder: CsvEncoder[Boolean] =
   }
 ```
 
-Est réduit en:
+Est réduit en :
 
 ```tut:book:invisible
 import CsvEncoder.instance
@@ -218,13 +217,13 @@ import CsvEncoder.instance
 implicit val booleanEncoder: CsvEncoder[Boolean] =
   instance(b => if(b) List("yes") else List("no"))
 ```
-Malheursement,
-les limitation imposer par le livre 
-nous empèche d'écrire un grand singleton 
-contenant beaucoup de méthode et d'instances.
-Nous préférons donc décrire les définitons en 
-dehors de leurs object compagnon.
-Ceci est a garder a l'esprit lorse que vous lisez ce livre
-mais rappelez vous que code complet se trouve dans le repository
-linké dans la Section [@sec:intro:about-this-book]
+Malheureusement,
+les limitation imposées par le livre 
+nous empèchent d'écrire un grand singleton 
+contenant beaucoup de méthodes et d'instances.
+Nous préférons donc décrire les définitions en 
+dehors de leurs objets compagnons.
+Ceci est à garder à l'esprit lorsque vous lisez ce livre,
+mais rappelez-vous que le code complet se trouve dans le lien vers le repository,
+dans la Section [@sec:intro:about-this-book]
 
