@@ -187,7 +187,7 @@ n'importe quelle case class.
 Intuitivement, la définition nous dit :
 
 > *Avec un `A` donné et une `HList` de type `R`,
-> avec un implicite `Generic` qui relie `A` a `R`
+> avec un `Generic` implicite qui relie `A` à `R`
 > et un `CsvEncoder` pour `R`,
 > alors on crée un `CsvEncoder` pour `A`.*
 
@@ -214,7 +214,7 @@ writeCsv(iceCreams)(
 et il peut inférer les valeurs correctes pour 
 un grand nombre de types différents.
 Tout comme moi, 
-je suis sur que vous appréciez ne pas avoir à écrire ce code à la main !
+je suis sûr que vous appréciez ne pas avoir à écrire ce code à la main !
 
 <div class="callout callout-info">
 *l'alias de type Aux*
@@ -252,7 +252,7 @@ Le pattern `Aux` est souvent utilisé dans le code de shapeless.
 
 Si tout ce que l'on vient de voir semble magique,
 permettez-moi de vous ramener à la réalité.
-Si quelque-chose tourne mal, le compilateur ne vous sera pas d'une grande aide.
+Si quelque chose tourne mal, le compilateur ne vous sera pas d'une grande aide.
 
 Il existe deux raisons pour laquelle le code précédent pourrait ne pas compiler.
 La première est si le compilateur ne peut pas trouver l'instance de `Generic`.
@@ -274,7 +274,7 @@ Si shapeless ne peut calculer un `Generic` cela veut dire que le type en questio
 L'autre source potentielle d'erreur 
 survient lorsque le compilateur ne peut calculer un 
 `CsvEncoder` pour notre `HList`.
-Cela arrive normalement car l'on n'a pas 
+Cela arrive normalement car on n'a pas 
 d'encodeur pour un des champs de notre ADT.
 Par exemple nous n'avons pas encore défini de 
 `CsvEncoder` pour `java.util.Date`, 
@@ -304,5 +304,5 @@ Nous aborderons les techniques de
 debuggage dans la Section [@sec:generic:debugging].
 Pour l'instant la seule fonctionalité qui compense c'est que 
 la résolution d'implicite plantera toujours à la compilation.
-Il y a une petite chance que cela finisse 
+Il y a peu de chances que cela finisse 
 par produire du code qui plante durant l'exécution.
