@@ -1,4 +1,4 @@
-## Résumer
+## Résumé
 Dans ce chapitre nous expliquons comment utiliser
 `Generic`, `HLists`, et `Coproducts`
 pour déduire automatiquement l'instance d'une type class.
@@ -22,7 +22,7 @@ implicit def stringInstance: MyTC[String] = ???
 implicit def booleanInstance: MyTC[Boolean] = ???
 ```
 
-Définissons les instances pour `HList`:
+Définissons les instances pour `HList` :
 
 ```tut:book:silent
 import shapeless._
@@ -35,7 +35,7 @@ implicit def hlistInstance[H, T <: HList](
   tInstance: MyTC[T]
 ): MyTC[H :: T] = ???
 ```
-Si requis, définir les instances de `Coproduct`:
+Si nécessaire, définir les instances de `Coproduct` :
 
 ```tut:book:silent
 implicit def cnilInstance: MyTC[CNil] = ???
@@ -47,7 +47,7 @@ implicit def coproductInstance[H, T <: Coproduct](
 ): MyTC[H :+: T] = ???
 ```
 
-Enfin, définissons les instances pour `Generic`:
+Enfin, définissons les instances pour `Generic` :
 
 ```tut:book:silent
 implicit def genericInstance[A, R](
