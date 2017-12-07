@@ -1,4 +1,4 @@
-## La déduction d'instance pour les type récursif.
+## La déduction d'instance pour les types récursifs.
 
 ```tut:book:invisible
 // ----------------------------------------------
@@ -57,7 +57,7 @@ implicit def genericEncoder[A, R](
 // ----------------------------------------------
 ```
 
-Essayons quelque chose de plus ambitieu : un arbre binaire :
+Essayons quelque chose de plus ambitieux, un arbre binaire :
 
 ```tut:book:silent
 sealed trait Tree[A]
@@ -65,37 +65,36 @@ case class Branch[A](left: Tree[A], right: Tree[A]) extends Tree[A]
 case class Leaf[A](value: A) extends Tree[A]
 ```
 
-En théorie nous devrions deja avoir toutes les définiton
+En théorie nous devrions déjà avoir toutes les définitons
 pour instancier un CSV writer pour notre arbre.
-Pourtant, appler `writeCsv` provoque une erreur :
-However, calls to `writeCsv` fail to compile:
+Pourtant, appeler `writeCsv` provoque une erreur :
 
 ```tut:book:fail
 CsvEncoder[Tree[Int]]
 ````
 
 Le problème est que notre type est qu'il est récusif.
-Le compilateur rentre dans une boucle infie 
+Le compilateur rentre dans une boucle infinie 
 en essayant d'appliquer nos implicits
 puis il abandonne.
 
 ### Les divergences d'implicits
 
 La résolution d'implicit est un processus de recherche.
-Le compilateur utilise des heuristique pour 
-s'orianté vers la bonne solution.
-Le compilateur effectue ces recherche branche par branche,
+Le compilateur utilise des heuristiques pour 
+s'orienter vers la bonne solution.
+Le compilateur effectue ces recherches branche par branche :
 si l'une d'elle ne donne pas de résultat favorable,
-le compilateur considère que cette branche n'aboutiras pas
-et continue ces recherche sur une autre branche.
+le compilateur considère que cette branche n'aboutira pas
+et continue ses recherche sur une autre branche.
 
-Une des heuristique est conçus spécifiquement pour
+Une des heuristiques est conçue spécifiquement pour
 éviter les boucles infinie.
 Si le compilateur rencontre le type cible 
-deux fois dans une branche de recherche;
-il abandone cette branche et passe a une autre.
+deux fois dans une branche de recherche,
+il abandonne cette branche et passe à une autre.
 On peut l'observer si on regarde l'expression `CsvEncoder[Tree[Int]]`.
-Le processus de résolution d'implicits suis les étapes suivantes :
+Le processus de résolution d'implicits suit les étapes suivantes :
 
 ```scala
 CsvEncoder[Tree[Int]]                          // 1
@@ -107,20 +106,20 @@ CsvEncoder[Tree[Int]]                          // 5 uh oh
 
 On rencontre `Tree[A]` deux fois lignes 1 et 5,
 donc le compilateur abandonne la recherche dans cette branche.
-La concésquence est que le compilateur echou a trouver bon implicit.
+La conséquence est que le compilateur echoue à trouver bon implicit.
 
 En fait, la situation est pire. 
-Si le compilateur vois le meme constructeur de type deux fois 
-et que la complexité du parametre de type *augmente* il supose
-que la branche n'aboutiras pas.*
-C'est un problème avec shapeless car les types comme 
+Si le compilateur voit le même constructeur de type deux fois 
+et que la complexité du paramètre de type *augmente*, il suppose
+que la branche n'aboutira pas.*
+C'est un problème avec Shapeless car les types comme 
 `::[H, T]` et `:+:[H, T]` peuvent aparaitre plusieurs fois 
-lors que le compilateur developpe les représentation générique.
-Ce qui pousse le compilateur a abonnoner prématurément
-meme si il aurais pue trouver la solution si il avais persité 
-a chercher dans cette branche.
+lorsque le compilateur développe les représentation génériques.
+Ce qui pousse le compilateur à abandonner prématurément
+même si il aurait pu trouver la solution s'il avait persisté 
+à chercher dans cette branche.
 
-comte tenus des types suivants:
+Compte tenu des types suivants :
 
 ```tut:book:silent
 case class Bar(baz: Int, qux: String)
@@ -128,7 +127,7 @@ case class Foo(bar: Bar)
 ```
 
 Le déroulement de la recherche pour `Foo` 
-resemble a ca :
+ressemble à ça :
 
 ```scala
 CsvEncoder[Foo]                   // 1
@@ -138,32 +137,32 @@ CsvEncoder[Int :: String :: HNil] // 4 uh oh
 ```
 
 Le compilateur essais de résoudre `CsvEncoder[::[H, T]]` deux fois
-dans cette branche, une fois a la ligne 2 et une fois a la ligne 4.
-Le parametre de type `T` est plus complexe a la ligne 4 qu'a la ligne 2,
-donc le compilateur pense (érronément dans ce cas)
-que la recherche dans cette branche n'aboutiras pas.
-Il change de branche encors et encors,
-il ne trouvera pas de quoi générer la bonne instance.
+dans cette branche, une fois à la ligne 2 et une fois à la ligne 4.
+Le paramètre de type `T` est plus complexe à la ligne 4 qu'à la ligne 2,
+donc le compilateur pense (erronément dans ce cas)
+que la recherche dans cette branche n'aboutira pas.
+Il change de branche encore et encore,
+et ne trouvera pas de quoi générer la bonne instance.
 
 ### *Lazy*
 
-La divergence d'implicit mettrais un 
-stop au bibliotèque telle que shapeless.
-Heureusement, shapeless fournis un 
-type appeler `Lazy` pour contourner ce problème.
-`Lazy` fait deux chose:
+La divergence d'implicit mettrait un 
+arrêt aux bibliothèques telles que Shapeless.
+Heureusement, Shapeless fournit un 
+type appelé `Lazy` pour contourner ce problème.
+`Lazy` fait deux choses :
 
- 1. Il supprime la divergence d'implicit a la 
-    compilation en ce protégant des heuristique trop défensive.
+ 1. Il supprime la divergence d'implicit à la 
+    compilation en se protégant des heuristiques trop défensives.
 
 
- 2. il reporte l'evaluation des parametre implicite au runtime,
+ 2. il reporte l'évaluation des paramètres implicites au runtime,
     ce qui permet la déduction des implicits récusifs.
 
-On utilise `Lazy` en le parametrant avec nos parametrs implicits.
+On utilise `Lazy` en le paramétrant avec nos paramètres implicites.
 En règle générale, il est toujours bon de mettre dans `Lazy`
-le parametre de "tête" de toute règle de `HList` ou de `Coproduct`
-ansi que le nimporte quel parametre `Repr` d'un `Generic`:
+le paramètre de "tête" de toute règle de `HList` ou de `Coproduct`
+ansi que n'importe quel paramètre `Repr` d'un `Generic` :
 
 ```tut:book:invisible:reset
 // Forward definitions -------------------------
@@ -233,8 +232,8 @@ sealed trait Tree[A]
 final case class Branch[A](left: Tree[A], right: Tree[A]) extends Tree[A]
 final case class Leaf[A](value: A) extends Tree[A]
 ```
-Ceci permet au compilateur de ne pas jetter l'éponge prématurément
-et donc permet au types complex/recusif comme `Tree` de fonctionner :
+Ceci permet au compilateur de ne pas jeter l'éponge prématurément
+et donc permet aux types complexes/recusifs comme `Tree` de fonctionner :
 
 ```tut:book
 CsvEncoder[Tree[Int]]
