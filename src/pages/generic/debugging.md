@@ -87,13 +87,13 @@ case class Foo(bar: Int, baz: Float)
 ```tut:book:fail
 CsvEncoder[Foo]
 ```
-Nous avons une erreur car nous navons 
+Nous avons une erreur car nous n'avons 
 pas défini `CsvEncoder` pour `Float`.
 Pourtant, cela n'est peut-être pas évident à voir dans le code de l'application.
 On peut chercher l'erreur en imaginant comment l'implicite est censé se développer,
 insérer des appels à `CsvEncoder.apply` ou à `implicitly` 
 au-dessus de l'erreur pour voir si cela compile.
-Commençons avec la représentation générique de `Foo`:
+Commençons avec la représentation générique de `Foo` :
 
 
 ```tut:book:fail
@@ -120,9 +120,9 @@ on répète le processus pour trouver le prochain point problématique.
 ### Debugger en utilisant *reify*
 
 La méthode `reify` de `scala.reflect` prend une 
-expression scala en paramètre et retourne
+expression Scala en paramètre et retourne
 un objet AST représentant l'expression sous 
-forme d'abre avec toutes les annotations de types. 
+forme d'arbre avec toutes les annotations de type. 
 
 ```tut:book:silent
 import scala.reflect.runtime.universe._
